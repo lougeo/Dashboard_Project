@@ -8,6 +8,3 @@ class Profile(models.Model):
     def __str__(self):
         return f'{self.user.username} Profile'
 
-# @property
-# def is_manager(self):
-#     return self.groups.filter(name='Manager').exists()
