@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import NewReportForm, UpdateReportForm, ReportTypeForm, ReportSelectorForm
+from .forms import NewProjectForm, NewReportForm, UpdateReportForm, ReportTypeForm, ReportSelectorForm
 
 
 def is_staff(user):
@@ -11,9 +12,28 @@ def is_staff(user):
         return False
 
 # Dasboard page. Need diff for client/staff?
+# Set conditional so that if user is client, can only view their own reports
+
 @login_required
 def home(request):
     return render(request, 'dashboard/home.html')
+
+# New Project page
+@login_required
+@user_passes_test(is_staff)
+def new_project(request):
+    if request.method == 'POST':
+        form = NewProjectForm(request.POST)
+        if form.is_valid():
+            form.save()
+            name = form.cleaned_data.get('name')
+            company = form.cleaned_data.get('company')
+            messages.success(request, f'Project {name} Created for {company}')
+            return redirect('new_report')
+    else:
+        form = NewProjectForm()
+    return render(request, 'dashboard/new_project.html', {'form': form})
+
 
 # New Report page
 @login_required
@@ -54,11 +74,8 @@ def update_report(request):
     if request.method == 'POST':
         form = ReportSelectorForm(request.POST)
         if form.is_valid():
-            form.save()
-            name = form.cleaned_data.get('name')
-            messages.success(request, f'Report Updated for {name}')
-            # return redirect('url name')
-            # redirect to a page which says report successfully created and asks what user wants to do
+            report = form.cleaned_data.get('rtype')
+            return redirect('#') # find out how to do the relative url path
     else:
         form = ReportSelectorForm()
     return render(request, 'dashboard/update_report.html', {'form': form})

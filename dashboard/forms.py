@@ -1,6 +1,12 @@
 from django import forms
 from django.forms import ModelForm
 from .models import ConcreteReport
+from users.models import Projects
+
+class NewProjectForm(ModelForm):
+    class Meta:
+        model = Projects
+        fields = ['company', 'name']
 
 # make a regular form for the report type which triggers a conditional to display the proper model form type
 class ReportTypeForm(forms.Form):
@@ -25,8 +31,7 @@ class ReportSelectorForm(forms.Form):
 class UpdateReportForm(ModelForm):
     class Meta:
         model = ConcreteReport
-        fields = ['cust_id', 
-                  'project_name', 
+        fields = ['project_name', 
                   'date_cast', 
                   'strength', 
                   'technician']
