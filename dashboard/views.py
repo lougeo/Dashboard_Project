@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import NewProjectForm, NewReportForm, UpdateReportForm, ReportTypeForm, ReportSelectorForm
-
+from .models import ConcreteReport
 
 def is_staff(user):
     if user.groups.filter(name="Manager").exists() | user.groups.filter(name="Technician").exists():
@@ -16,7 +16,8 @@ def is_staff(user):
 
 @login_required
 def home(request):
-    return render(request, 'dashboard/home.html')
+    reports = ConcreteReport.objects.all()
+    return render(request, 'dashboard/home.html', {'reports':reports})
 
 # New Project page
 @login_required

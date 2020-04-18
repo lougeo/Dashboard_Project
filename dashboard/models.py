@@ -22,4 +22,4 @@ class ConcreteReport(models.Model):
     
 
     def __str__(self):
-        return self.name
+        return f'{self.project_name}, {self.date_received}'
