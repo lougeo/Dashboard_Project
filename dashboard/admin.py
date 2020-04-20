@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import ConcreteReport, ConcreteSample
 
-# Register your models here.
+admin.site.register(ConcreteReport)
+admin.site.register(ConcreteSample)
+

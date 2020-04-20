@@ -1,11 +1,11 @@
 from django import forms
 from django.forms import ModelForm
-from .models import ConcreteReport
-from users.models import Projects
+from .models import ConcreteReport, ConcreteSample
+from users.models import Project
 
 class NewProjectForm(ModelForm):
     class Meta:
-        model = Projects
+        model = Project
         fields = ['company', 'name']
 
 # make a regular form for the report type which triggers a conditional to display the proper model form type
@@ -23,6 +23,11 @@ class NewReportForm(ModelForm):
                   'technician']
 
 
+class NewSampleForm(ModelForm):
+    class Meta:
+        model = ConcreteSample
+        fields = ['report', 'cast_day', 'break_day']
+
 # Need to set this to query only reports which are active (might be easier to do in the view)
 class ReportSelectorForm(forms.Form):
     selected_report = forms.ModelChoiceField(queryset=ConcreteReport.objects.all())
@@ -32,6 +37,5 @@ class UpdateReportForm(ModelForm):
     class Meta:
         model = ConcreteReport
         fields = ['project_name', 
-                  'date_cast', 
-                  'strength', 
+                  'date_cast',  
                   'technician']

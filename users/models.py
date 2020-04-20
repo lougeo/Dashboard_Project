@@ -9,12 +9,12 @@ class Profile(models.Model):
     def __str__(self):
         return f'{self.user.username} Profile'
 
-class Projects(models.Model):
+class Project(models.Model):
     company = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True) # limit_choices_to={'is_client':True}
     name = models.CharField(max_length=30, unique=True)
 
     def __str__(self):
-        return f'{self.company.company}, {self.name}'
+        return self.name
 
 
 

@@ -1,9 +1,11 @@
+from datetime import timedelta
+
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import NewProjectForm, NewReportForm, UpdateReportForm, ReportTypeForm, ReportSelectorForm
-from .models import ConcreteReport
+from .forms import NewProjectForm, NewReportForm, UpdateReportForm, ReportTypeForm, ReportSelectorForm, NewSampleForm
+from .models import ConcreteReport, ConcreteSample
 
 def is_staff(user):
     if user.groups.filter(name="Manager").exists() | user.groups.filter(name="Technician").exists():
@@ -17,7 +19,11 @@ def is_staff(user):
 @login_required
 def home(request):
     reports = ConcreteReport.objects.all()
-    return render(request, 'dashboard/home.html', {'reports':reports})
+    samples = ConcreteSample.objects.all()
+    #in_lab = ConcreteReport.filter(status=0).count()
+
+
+    return render(request, 'dashboard/home.html', {'reports':reports, 'samples':samples})
 
 # New Project page
 @login_required
@@ -56,8 +62,31 @@ def new_report_add(request):
     if request.method == 'POST':
         form = NewReportForm(request.POST)
         if form.is_valid():
-            form.save()
+            # Report
+            new_report = form.save()
             name = form.cleaned_data.get('project_name')
+            num_samples = form.cleaned_data.get('num_samples')
+            break_days = form.cleaned_data.get('break_days')
+            pk = new_report.id
+
+            # Samples
+            # Maybe include this part in the validation step
+            
+            break_days = break_days.split(', ')
+            report_instance = ConcreteReport.objects.get(pk=pk)
+            for i in break_days:
+                days = int(i)
+                # sample_form = NewSampleForm()
+                sample_form = ConcreteSample(report=report_instance, 
+                                            cast_day=report_instance.date_cast, 
+                                            break_day=report_instance.date_cast + timedelta(days=days))
+                # report=form.cleaned_data.get('pk')
+                # cast_day=form.cleaned_data.get('date_cast')
+                # break_day=form.cleaned_data.get('date_cast') + timedelta(days=days)
+
+                sample_form.save()
+
+
             messages.success(request, f'Report Created for {name}')
             return redirect('new_report')
     else:

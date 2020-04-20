@@ -25,6 +25,7 @@ urlpatterns = [
     path('profile/', user_views.profile, name='profile'),
     path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
+    path('home/', dashboard_views.home, name='home'),
     path('new-project/', dashboard_views.new_project, name='new_project'),
     path('new-report/', dashboard_views.new_report, name='new_report'),
     path('new-report-add/', dashboard_views.new_report_add, name='new_report_add'),
