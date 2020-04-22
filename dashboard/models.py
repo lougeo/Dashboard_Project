@@ -14,6 +14,7 @@ class ConcreteReport(models.Model):
     technician = models.ForeignKey(User, on_delete=models.CASCADE, null=True, limit_choices_to={'groups__name':'Manager', 'groups__name':'Technician'}) # Figure out why it wont let me include both, also change to PROTECT
     date_received = models.DateField(default=timezone.now)
     date_cast = models.DateField(default=timezone.now) # Change this to 
+    # Make some validation which checks num samples against the break days
     num_samples = models.SmallIntegerField()
     break_days = models.CharField(max_length=30)
     

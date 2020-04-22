@@ -1,10 +1,10 @@
 from datetime import timedelta
-
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import NewProjectForm, NewReportForm, UpdateReportForm, ReportTypeForm, ReportSelectorForm, NewSampleForm
+from .forms import NewProjectForm, ReportForm, UpdateSampleForm, ReportTypeForm, ReportSelectorForm, NewSampleForm
 from .models import ConcreteReport, ConcreteSample
 
 def is_staff(user):
@@ -60,37 +60,27 @@ def new_report(request):
 @user_passes_test(is_staff)
 def new_report_add(request):
     if request.method == 'POST':
-        form = NewReportForm(request.POST)
+        form = ReportForm(request.POST)
         if form.is_valid():
             # Report
             new_report = form.save()
             name = form.cleaned_data.get('project_name')
-            num_samples = form.cleaned_data.get('num_samples')
             break_days = form.cleaned_data.get('break_days')
-            pk = new_report.id
 
-            # Samples
-            # Maybe include this part in the validation step
-            
+            # Samples            
             break_days = break_days.split(', ')
-            report_instance = ConcreteReport.objects.get(pk=pk)
             for i in break_days:
                 days = int(i)
-                # sample_form = NewSampleForm()
-                sample_form = ConcreteSample(report=report_instance, 
-                                            cast_day=report_instance.date_cast, 
-                                            break_day=report_instance.date_cast + timedelta(days=days))
-                # report=form.cleaned_data.get('pk')
-                # cast_day=form.cleaned_data.get('date_cast')
-                # break_day=form.cleaned_data.get('date_cast') + timedelta(days=days)
-
+                sample_form = ConcreteSample(report=new_report, 
+                                             cast_day=new_report.date_cast, 
+                                             break_day=new_report.date_cast + timedelta(days=days))
                 sample_form.save()
 
 
             messages.success(request, f'Report Created for {name}')
             return redirect('new_report')
     else:
-        form = NewReportForm()
+        form = ReportForm()
     return render(request, 'dashboard/new_report.html', {'form': form})
 
 
@@ -104,26 +94,29 @@ def update_report(request):
     if request.method == 'POST':
         form = ReportSelectorForm(request.POST)
         if form.is_valid():
-            report = form.cleaned_data.get('rtype')
-            return redirect('#') # find out how to do the relative url path
+            report = form.cleaned_data.get('selected_report')
+            return redirect('update_report_add', pk=report.id)
     else:
         form = ReportSelectorForm()
-    return render(request, 'dashboard/update_report.html', {'form': form})
+        reports = ConcreteSample.objects.filter(break_day=timezone.now().date())
+    return render(request, 'dashboard/update_report.html', {'form': form, 'reports':reports})
 
 @login_required
 @user_passes_test(is_staff)
-def update_report_add(request):
+def update_report_add(request, pk):
+    instance = ConcreteSample.objects.get(id=pk)
+    
     if request.method == 'POST':
-        form = UpdateReportForm(request.POST)
+        form = UpdateSampleForm(request.POST)
         if form.is_valid():
             form.save()
             name = form.cleaned_data.get('name')
             messages.success(request, f'Report Updated for {name}')
-            # return redirect('url name')
-            # redirect to a page which says report successfully created and asks what user wants to do
+            return redirect('update_report')
     else:
-        form = UpdateReportForm()
-    return render(request, 'dashboard/update_report.html', {'form': form})
+        form = UpdateSampleForm()
+
+    return render(request, 'dashboard/update_report_add.html', {'form': form, 'instance':instance})
 
 
 

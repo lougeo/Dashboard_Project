@@ -2,11 +2,30 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class='container'>
+        <table class="table">
+            <tr>
+                <td>Project</td>
+                <td>ID</td>
+                <td>Date Cast</td>
+            </tr>
+            <tr>
+                <td>{{ instance.report.project_name }}</td>
+                <td>{{ instance.id }}</td>
+                <td>{{ instance.cast_day }}</td>
+            </tr>
+        </table>
         <form method="POST">
             {% csrf_token %}
             <fieldset class='form-group'>
-                <legend class='border-bottom mb-4'>Update Report</legend>
-                {{ form|crispy }}
+                <legend>Update Report</legend>
+                <table class="table">
+                    <tr>
+                        <td>{{ form.width|as_crispy_field }}</td>
+                        <td>{{ form.height|as_crispy_field }}</td>
+                        <td>{{ form.weight|as_crispy_field }}</td>
+                        <td>{{ form.strength|as_crispy_field }}</td>
+                    </tr>
+                </table>
                 <div class='form-group'>
                     <button class='btn btn-outline-info' type='submit'>Submit</button>
                 </div>

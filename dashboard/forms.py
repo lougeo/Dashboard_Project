@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from django.forms import ModelForm
 from .models import ConcreteReport, ConcreteSample
 from users.models import Project
@@ -12,7 +13,7 @@ class NewProjectForm(ModelForm):
 class ReportTypeForm(forms.Form):
     report_type = forms.ChoiceField(choices=[(1, 'Concrete'), (2, 'Shotcrete')])
 
-class NewReportForm(ModelForm):
+class ReportForm(ModelForm):
     class Meta:
         model = ConcreteReport
         fields = ['project_name', 
@@ -30,12 +31,13 @@ class NewSampleForm(ModelForm):
 
 # Need to set this to query only reports which are active (might be easier to do in the view)
 class ReportSelectorForm(forms.Form):
-    selected_report = forms.ModelChoiceField(queryset=ConcreteReport.objects.all())
+    selected_report = forms.ModelChoiceField(queryset=ConcreteSample.objects.filter(break_day=timezone.now().date()))
 
 
-class UpdateReportForm(ModelForm):
+class UpdateSampleForm(ModelForm):
     class Meta:
-        model = ConcreteReport
-        fields = ['project_name', 
-                  'date_cast',  
-                  'technician']
+        model = ConcreteSample
+        fields = ['width', 
+                  'height',  
+                  'weight',
+                  'strength']
