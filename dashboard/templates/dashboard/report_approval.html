@@ -1,0 +1,32 @@
+{% extends "dashboard/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class='container'>
+        <table class="table">
+            <tr>
+                <td>Project</td>
+                <td>ID</td>
+                <td>Date Cast</td>
+                <td>Update</td>
+            </tr>
+            {% for report in reports %}
+                <tr>
+                    <td>{{ report.report.project_name }}</td>
+                    <td>{{ report.report.id }}</td>
+                    <td>{{ report.report.date_cast }}</td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'update_report_add' report.id %}">Update</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class='form-group'>
+                <legend class='border-bottom mb-4'>Update Report</legend>
+                {{ form|crispy }}
+                <div class='form-group'>
+                    <button class='btn btn-outline-info' type='submit'>Submit</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+{% endblock content %}

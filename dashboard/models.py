@@ -5,7 +5,6 @@ from users.models import Profile, Project
 
 
 class ConcreteReport(models.Model):
-    id = models.AutoField(primary_key=True)
     # This gets set automatically at each stage
     status = models.SmallIntegerField(default=0)
 
@@ -26,8 +25,8 @@ class ConcreteReport(models.Model):
 class ConcreteSample(models.Model):
 
     # Identifiers
-    id = models.AutoField(primary_key=True)
     report = models.ForeignKey(ConcreteReport, on_delete=models.CASCADE)
+    status = models.PositiveSmallIntegerField(default=0)
     cast_day = models.DateField()
     break_day = models.DateField()
 
@@ -39,4 +38,4 @@ class ConcreteSample(models.Model):
 
 
     def __str__(self):
-        return f'{self.report}, {self.break_day}'
+        return f'{self.id}, {self.status}'

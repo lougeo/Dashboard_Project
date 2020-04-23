@@ -31,5 +31,6 @@ urlpatterns = [
     path('new-report-add/', dashboard_views.new_report_add, name='new_report_add'),
     path('update-report/', dashboard_views.update_report, name='update_report'),
     path('update-report-add/<int:pk>/', dashboard_views.update_report_add, name='update_report_add'),
+    path('report-approval/', dashboard_views.report_approval, name='report_approval'),
     path('', include('dashboard.urls'))
 ]

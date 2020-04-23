@@ -13,6 +13,9 @@ def is_staff(user):
     else:
         return False
 
+def is_manager(user):
+    return user.groups.filter(name="Manager").exists()
+
 # Dasboard page. Need diff for client/staff?
 # Set conditional so that if user is client, can only view their own reports
 
@@ -84,9 +87,6 @@ def new_report_add(request):
     return render(request, 'dashboard/new_report.html', {'form': form})
 
 
-# Need to query the db for all the reports which are "active"
-# Then need to obtain the PK for selected report, and send user to update page with that info loaded
-
 # Update Report Page
 @login_required
 @user_passes_test(is_staff)
@@ -95,30 +95,45 @@ def update_report(request):
         form = ReportSelectorForm(request.POST)
         if form.is_valid():
             report = form.cleaned_data.get('selected_report')
-            return redirect('update_report_add', pk=report.id)
+            return redirect('update_report_add', pk=report.pk)
     else:
         form = ReportSelectorForm()
-        reports = ConcreteSample.objects.filter(break_day=timezone.now().date())
+        reports = ConcreteSample.objects.filter(break_day=timezone.now().date()).filter(status=0)
     return render(request, 'dashboard/update_report.html', {'form': form, 'reports':reports})
 
 @login_required
 @user_passes_test(is_staff)
 def update_report_add(request, pk):
-    instance = ConcreteSample.objects.get(id=pk)
-    
+    instance = ConcreteSample.objects.get(pk=pk)
+
     if request.method == 'POST':
-        form = UpdateSampleForm(request.POST)
+        form = UpdateSampleForm(request.POST, instance=instance)
         if form.is_valid():
             form.save()
-            name = form.cleaned_data.get('name')
-            messages.success(request, f'Report Updated for {name}')
+            instance.status = 1
+            instance.save()
+            messages.success(request, f'Report Updated for {instance}')
             return redirect('update_report')
     else:
-        form = UpdateSampleForm()
+        form = UpdateSampleForm(instance=instance)
 
     return render(request, 'dashboard/update_report_add.html', {'form': form, 'instance':instance})
 
 
+
+# Need to figure out how I want this laid out
+@login_required
+@user_passes_test(is_manager)
+def report_approval(request):
+    # if request.method == 'POST':
+    #     form = ReportSelectorForm(request.POST)
+    #     if form.is_valid():
+    #         report = form.cleaned_data.get('selected_report')
+    #         return redirect('update_report_add', pk=report.pk)
+    # else:
+    #     form = ReportSelectorForm()
+    #     reports = ConcreteSample.objects.filter(status=1)
+    return render(request, 'dashboard/report_approval.html', {'form': form, 'reports':reports})
 
 
 
