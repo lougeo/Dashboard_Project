@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import NewProjectForm, ReportForm, UpdateSampleForm, ReportTypeForm, ReportSelectorForm, NewSampleForm
+from .forms import *
 from .models import ConcreteReport, ConcreteSample
 
 def is_staff(user):
@@ -76,7 +76,8 @@ def new_report_add(request):
                 days = int(i)
                 sample_form = ConcreteSample(report=new_report, 
                                              cast_day=new_report.date_cast, 
-                                             break_day=new_report.date_cast + timedelta(days=days))
+                                             break_day=new_report.date_cast + timedelta(days=days), 
+                                             break_day_num=i)
                 sample_form.save()
 
 
@@ -110,6 +111,14 @@ def update_report_add(request, pk):
         form = UpdateSampleForm(request.POST, instance=instance)
         if form.is_valid():
             form.save()
+            # This is to set the color on the approvals page, needs to be reimagined to be more dynamic, and also validate upon submission - triggering a popup confirm page if warning or fail
+            if instance.strength > 50:
+                instance.result = 0
+            elif instance.strength < 40:
+                instance.result = 2
+            else:
+                instance.result = 1
+            
             instance.status = 1
             instance.save()
             messages.success(request, f'Report Updated for {instance}')
@@ -120,20 +129,22 @@ def update_report_add(request, pk):
     return render(request, 'dashboard/update_report_add.html', {'form': form, 'instance':instance})
 
 
-
-# Need to figure out how I want this laid out
 @login_required
 @user_passes_test(is_manager)
 def report_approval(request):
-    # if request.method == 'POST':
-    #     form = ReportSelectorForm(request.POST)
-    #     if form.is_valid():
-    #         report = form.cleaned_data.get('selected_report')
-    #         return redirect('update_report_add', pk=report.pk)
-    # else:
-    #     form = ReportSelectorForm()
-    #     reports = ConcreteSample.objects.filter(status=1)
-    return render(request, 'dashboard/report_approval.html', {'form': form, 'reports':reports})
+    if request.method == 'POST':
+        form = SampleSelectorForm(request.POST)
+        if form.is_valid():
+            pk = form.cleaned_data.get('id')
+            instance = ConcreteSample.objects.get(pk=pk)
+            instance.status = 2
+            instance.save()
+            reports = ConcreteSample.objects.filter(status=1)
+            return render(request, 'dashboard/report_approval.html', {'reports':reports})
+    else:
+        form = SampleSelectorForm()
+        reports = ConcreteSample.objects.filter(status=1)
+    return render(request, 'dashboard/report_approval.html', {'reports':reports, 'form':form})
 
 
 

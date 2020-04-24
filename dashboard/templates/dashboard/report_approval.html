@@ -4,29 +4,35 @@
     <div class='container'>
         <table class="table">
             <tr>
-                <td>Project</td>
-                <td>ID</td>
-                <td>Date Cast</td>
-                <td>Update</td>
+                <th>Project</th>
+                <th>ID</th>
+                <th>Break Number</th>
+                <th>Strength</th>
+                <th>Update</th>
+                <th>Approve</th>
             </tr>
             {% for report in reports %}
                 <tr>
                     <td>{{ report.report.project_name }}</td>
-                    <td>{{ report.report.id }}</td>
-                    <td>{{ report.report.date_cast }}</td>
+                    <td>{{ report.id }}</td>
+                    <td>{{ report.break_day_num }}</td>
+                    {% if report.result == 0 %}
+                        <td style="background-color:green;">{{ report.strength }}</td>
+                    {% elif report.result == 1 %}
+                        <td style="background-color: yellow;">{{ report.strength }}</td>
+                    {% else %}
+                        <td style="background-color: red;">{{ report.strength }}</td>
+                    {% endif %}
                     <td><a class="btn btn-sm btn-info" href="{% url 'update_report_add' report.id %}">Update</a></td>
+                    <td>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{ report.id }}">
+                            <button class='btn btn-sm btn-success' type='submit'>Approve</button>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </table>
-        <form method="POST">
-            {% csrf_token %}
-            <fieldset class='form-group'>
-                <legend class='border-bottom mb-4'>Update Report</legend>
-                {{ form|crispy }}
-                <div class='form-group'>
-                    <button class='btn btn-outline-info' type='submit'>Submit</button>
-                </div>
-            </fieldset>
-        </form>
     </div>
 {% endblock content %}

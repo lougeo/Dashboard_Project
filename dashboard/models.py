@@ -26,16 +26,19 @@ class ConcreteSample(models.Model):
 
     # Identifiers
     report = models.ForeignKey(ConcreteReport, on_delete=models.CASCADE)
+    # 0:new, 1:modified, 2:approved
     status = models.PositiveSmallIntegerField(default=0)
     cast_day = models.DateField()
     break_day = models.DateField()
+    break_day_num = models.PositiveSmallIntegerField()
 
     # Metrics
     width = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     height = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     weight = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     strength = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-
+    # 0:pass 1:warning 2:fail
+    result = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):
         return f'{self.id}, {self.status}'

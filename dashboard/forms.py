@@ -41,3 +41,6 @@ class UpdateSampleForm(ModelForm):
                   'height',  
                   'weight',
                   'strength']
+
+class SampleSelectorForm(forms.Form):
+    id = forms.IntegerField(widget=forms.HiddenInput())
