@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import *
 from .models import ConcreteReport, ConcreteSample
+from .filters import *
 
 def is_staff(user):
     if user.groups.filter(name="Manager").exists() | user.groups.filter(name="Technician").exists():
@@ -20,13 +21,25 @@ def is_manager(user):
 # Set conditional so that if user is client, can only view their own reports
 
 @login_required
+@user_passes_test(is_staff, redirect_field_name='#')
 def home(request):
     reports = ConcreteReport.objects.all()
     samples = ConcreteSample.objects.all()
-    #in_lab = ConcreteReport.filter(status=0).count()
+    in_lab = reports.filter(status=0).count()
+    breaks_today = samples.filter(break_day=timezone.now().date()).count()
+    waiting_approval = samples.filter(status=1).count()
 
+    myFilter = ReportFilter(request.GET, queryset=reports)
+    #reports = myFilter.qs
 
-    return render(request, 'dashboard/home.html', {'reports':reports, 'samples':samples})
+    context = {'reports':reports,
+               'samples':samples,
+               'in_lab':in_lab,
+               'breaks_today':breaks_today,
+               'waiting_approval':waiting_approval,
+               'myFilter':myFilter}
+
+    return render(request, 'dashboard/home.html', context)
 
 # New Project page
 @login_required

@@ -8,7 +8,7 @@ class ConcreteReport(models.Model):
     # This gets set automatically at each stage
     status = models.SmallIntegerField(default=0)
 
-    # These get set upon creation
+    # Need an ID tag that counts starting at 1 for each project
     project_name = models.ForeignKey(Project, on_delete=models.CASCADE) # Change to PROTECT
     technician = models.ForeignKey(User, on_delete=models.CASCADE, null=True, limit_choices_to={'groups__name':'Manager', 'groups__name':'Technician'}) # Figure out why it wont let me include both, also change to PROTECT
     date_received = models.DateField(default=timezone.now)

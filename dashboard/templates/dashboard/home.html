@@ -1,8 +1,77 @@
 {% extends "dashboard/base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
-    <div class='container'>
-        <h1>Dashboard page</h1>
-        {{ reports }} <br>
-        {{ samples }}
+    <br>
+    <div class='row'>
+        <div class='col'>
+            <div class='card-deck'>
+                <div class='card text-center mb-3', id='in-lab'>
+                    <div class='card-block'>
+                        <div class='card-header'>
+                            <h5 class='card-title'>Total Samples in Lab</h5>
+                        </div>
+                        <div class='card-body'>
+                            <h3 class='card-title'>{{ in_lab }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class='card text-center mb-3', id='in-lab'>
+                    <div class='card-block'>
+                        <div class='card-header'>
+                            <h5 class='card-title'>Breaks Today</h5>
+                        </div>
+                        <div class='card-body'>
+                            <h3 class='card-title'>{{ breaks_today }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class='card text-center mb-3', id='in-lab'>
+                    <div class='card-header'>
+                        <h5 class='card-title'>Waiting Approval</h5>
+                    </div>
+                    <div class='card-body'>
+                        <h3 class='card-title'>{{ waiting_approval }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class='row'>
+        <div class='col'>
+            <div class='card card-body'>
+                <form method='GET'>
+                    {{ myFilter.form }}
+                    <button class='btn btn-primary' type='submit'>Search</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class='row'>
+        <div class='col-md'>
+            <div class='card card-body'>
+                <table class='table table-sm'>
+                    <tr>
+                        <th>Client</th>
+                        <th>Project</th>
+                        <th>ID</th>
+                        <th>Date Cast</th>
+                        <th>Date Received</th>
+                        <th>Update</th>
+                    </tr>
+                    {% for report in reports %}
+                        <tr>
+                            <td>{{ report.project_name.company }}</td>
+                            <td>{{ report.project_name }}</td>
+                            <td>{{ report.id }}</td>
+                            <td>{{ report.date_cast }}</td>
+                            <td>{{ report.date_received }}</td>
+                            <td><a class='btn btn-sm btn-info' href="#">Update</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
     </div>
 {% endblock content %}
