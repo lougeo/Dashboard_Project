@@ -22,10 +22,16 @@ def is_manager(user):
 # Set conditional so that if user is client, can only view their own reports
 
 @login_required
-@user_passes_test(is_staff, redirect_field_name='#')
+#@user_passes_test(is_staff, redirect_field_name='client_home')
 def home(request):
-    reports = ConcreteReport.objects.all()
-    samples = ConcreteSample.objects.all()
+    if is_staff(request.user):
+        reports = ConcreteReport.objects.all()
+        samples = ConcreteSample.objects.all()
+    else:
+        client = request.user.id
+        reports = ConcreteReport.objects.filter(project_name__company__user__id=client)
+        samples = ConcreteSample.objects.filter(report__project_name__company__user__id=client)
+    
     in_lab = reports.filter(status=0).count()
     breaks_today = samples.filter(break_day=timezone.now().date()).count()
     waiting_approval = samples.filter(status=1).count()
@@ -42,22 +48,26 @@ def home(request):
 
     return render(request, 'dashboard/home.html', context)
 
-# New Project page
 @login_required
-@user_passes_test(is_staff)
-def new_project(request):
-    if request.method == 'POST':
-        form = NewProjectForm(request.POST)
-        if form.is_valid():
-            form.save()
-            name = form.cleaned_data.get('name')
-            company = form.cleaned_data.get('company')
-            messages.success(request, f'Project {name} Created for {company}')
-            return redirect('new_report')
-    else:
-        form = NewProjectForm()
-    return render(request, 'dashboard/new_project.html', {'form': form})
+def client_home(request):
+    client = request.user.id
+    reports = ConcreteReport.objects.filter(project_name__company__user__id=client)
+    samples = ConcreteSample.objects.filter(report__project_name__company__user__id=client)
+    in_lab = reports.filter(status=0).count()
+    breaks_today = samples.filter(break_day=timezone.now().date()).count()
+    waiting_approval = samples.filter(status=1).count()
 
+    myFilter = ReportFilter(request.GET, queryset=reports)
+    reports = myFilter.qs
+
+    context = {'reports':reports,
+               'samples':samples,
+               'in_lab':in_lab,
+               'breaks_today':breaks_today,
+               'waiting_approval':waiting_approval,
+               'myFilter':myFilter}
+
+    return render(request, 'dashboard/home.html', context)
 
 # New Report page
 @login_required

@@ -1,6 +1,8 @@
 from django import forms
+from django.forms import ModelForm
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import UserCreationForm
+from .models import *
 
 
 # Here it will have to be modified to also include what kind of user permissions this user will have
@@ -12,3 +14,11 @@ class UserRegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2', 'group']
+
+
+class NewProjectForm(ModelForm):
+    company = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'), 
+                                     required=True)
+    class Meta:
+        model = Project
+        fields = ['company', 'name']

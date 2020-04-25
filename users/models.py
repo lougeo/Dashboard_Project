@@ -9,7 +9,9 @@ class Profile(models.Model):
         return self.user.username
 
 class Project(models.Model):
-    company = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True) # limit_choices_to={'is_client':True}
+    company = models.ForeignKey(Profile, 
+                                on_delete=models.CASCADE, 
+                                null=True)
     name = models.CharField(max_length=30, unique=True)
 
     def __str__(self):

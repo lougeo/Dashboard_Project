@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import UserRegisterForm
+from .forms import *
+from .models import Project
 
 def is_manager(user):
     return user.groups.filter(name="Manager").exists()
@@ -27,3 +28,20 @@ def register(request):
 @login_required
 def profile(request):
     return render(request, 'users/profile.html')
+
+# New Project page
+@login_required
+@user_passes_test(is_manager)
+def new_project(request):
+    if request.method == 'POST':
+        form = NewProjectForm(request.POST)
+        if form.is_valid():
+            form.save()
+            name = form.cleaned_data.get('name')
+            company = form.cleaned_data.get('company')
+            messages.success(request, f'Project {name} Created for {company}')
+            return redirect('new_report')
+    else:
+        form = NewProjectForm()
+    
+    return render(request, 'dashboard/new_project.html', {'form': form})

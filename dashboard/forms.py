@@ -2,12 +2,6 @@ from django import forms
 from django.utils import timezone
 from django.forms import ModelForm
 from .models import ConcreteReport, ConcreteSample
-from users.models import Project
-
-class NewProjectForm(ModelForm):
-    class Meta:
-        model = Project
-        fields = ['company', 'name']
 
 # make a regular form for the report type which triggers a conditional to display the proper model form type
 class ReportTypeForm(forms.Form):
