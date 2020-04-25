@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Q
 from .forms import *
 from .models import ConcreteReport, ConcreteSample
 from .filters import *
@@ -30,7 +31,7 @@ def home(request):
     waiting_approval = samples.filter(status=1).count()
 
     myFilter = ReportFilter(request.GET, queryset=reports)
-    #reports = myFilter.qs
+    reports = myFilter.qs
 
     context = {'reports':reports,
                'samples':samples,
@@ -151,7 +152,15 @@ def report_approval(request):
             pk = form.cleaned_data.get('id')
             instance = ConcreteSample.objects.get(pk=pk)
             instance.status = 2
+            
+            # Checks if there are any remaining samples and marks report complete if not
+            if ConcreteSample.objects.filter(report=instance.report).filter(Q(status=0) | Q(status=1)).exists() == True:
+                main_report = ConcreteReport.objects.get(id=instance.report.id)
+                main_report.status = 1
+                main_report.save()
+
             instance.save()
+            # Updated list returned
             reports = ConcreteSample.objects.filter(status=1)
             return render(request, 'dashboard/report_approval.html', {'reports':reports})
     else:

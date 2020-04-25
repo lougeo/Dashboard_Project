@@ -5,8 +5,8 @@ from users.models import Profile, Project
 
 
 class ConcreteReport(models.Model):
-    # This gets set automatically at each stage
-    status = models.SmallIntegerField(default=0)
+    # 0:incomplete 1:complete
+    status = models.PositiveSmallIntegerField(default=0)
 
     # Need an ID tag that counts starting at 1 for each project
     project_name = models.ForeignKey(Project, on_delete=models.CASCADE) # Change to PROTECT
