@@ -6,10 +6,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
 from .forms import *
-from .models import ConcreteReport, ConcreteSample
+from .models import *
 from .filters import *
 
-def is_staff(user):
+def is_employee(user):
     if user.groups.filter(name="Manager").exists() | user.groups.filter(name="Technician").exists():
         return True
     else:
@@ -18,60 +18,53 @@ def is_staff(user):
 def is_manager(user):
     return user.groups.filter(name="Manager").exists()
 
-# Dasboard page. Need diff for client/staff?
-# Set conditional so that if user is client, can only view their own reports
-
+# Dasboard page
 @login_required
-#@user_passes_test(is_staff, redirect_field_name='client_home')
+#@user_passes_test(is_employee, redirect_field_name='client_home')
 def home(request):
-    if is_staff(request.user):
+    if is_employee(request.user):
         reports = ConcreteReport.objects.all()
         samples = ConcreteSample.objects.all()
+
+        # Total in lab
+        card_1 = reports.filter(status=0).count()
+        # Breaks Today
+        card_2 = samples.filter(break_day=timezone.now().date()).count()
+        # Waiting approval
+        card_3 = samples.filter(status=1).count()
+
+        card_titles = ['Total Samples in Lab', 'Breaks Today', 'Waiting Approval']
     else:
         client = request.user.id
         reports = ConcreteReport.objects.filter(project_name__company__user__id=client)
         samples = ConcreteSample.objects.filter(report__project_name__company__user__id=client)
-    
-    in_lab = reports.filter(status=0).count()
-    breaks_today = samples.filter(break_day=timezone.now().date()).count()
-    waiting_approval = samples.filter(status=1).count()
+
+        # Total in lab
+        card_1 = reports.filter(status=0).count()
+        # Breaks Today
+        card_2 = samples.filter(break_day=timezone.now().date()).count()
+        # Waiting approval
+        card_3 = samples.filter(status=1).count()
+
+        card_titles = ['Total Samples in Lab', 'Breaks Today', 'Waiting Approval']
+
 
     myFilter = ReportFilter(request.GET, queryset=reports)
     reports = myFilter.qs
 
     context = {'reports':reports,
                'samples':samples,
-               'in_lab':in_lab,
-               'breaks_today':breaks_today,
-               'waiting_approval':waiting_approval,
-               'myFilter':myFilter}
-
-    return render(request, 'dashboard/home.html', context)
-
-@login_required
-def client_home(request):
-    client = request.user.id
-    reports = ConcreteReport.objects.filter(project_name__company__user__id=client)
-    samples = ConcreteSample.objects.filter(report__project_name__company__user__id=client)
-    in_lab = reports.filter(status=0).count()
-    breaks_today = samples.filter(break_day=timezone.now().date()).count()
-    waiting_approval = samples.filter(status=1).count()
-
-    myFilter = ReportFilter(request.GET, queryset=reports)
-    reports = myFilter.qs
-
-    context = {'reports':reports,
-               'samples':samples,
-               'in_lab':in_lab,
-               'breaks_today':breaks_today,
-               'waiting_approval':waiting_approval,
+               'card_1':card_1,
+               'card_2':card_2,
+               'card_3':card_3, 
+               'card_titles':card_titles,
                'myFilter':myFilter}
 
     return render(request, 'dashboard/home.html', context)
 
 # New Report page
 @login_required
-@user_passes_test(is_staff)
+@user_passes_test(is_employee)
 def new_report(request):
     if request.method == 'POST':
         form = ReportTypeForm(request.POST)
@@ -84,7 +77,7 @@ def new_report(request):
     return render(request, 'dashboard/new_report.html', {'form': form})
 
 @login_required
-@user_passes_test(is_staff)
+@user_passes_test(is_employee)
 def new_report_add(request):
     if request.method == 'POST':
         form = ReportForm(request.POST)
@@ -114,7 +107,7 @@ def new_report_add(request):
 
 # Update Report Page
 @login_required
-@user_passes_test(is_staff)
+@user_passes_test(is_employee)
 def update_report(request):
     if request.method == 'POST':
         form = ReportSelectorForm(request.POST)
@@ -127,7 +120,7 @@ def update_report(request):
     return render(request, 'dashboard/update_report.html', {'form': form, 'reports':reports})
 
 @login_required
-@user_passes_test(is_staff)
+@user_passes_test(is_employee)
 def update_report_add(request, pk):
     instance = ConcreteSample.objects.get(pk=pk)
 
@@ -136,9 +129,9 @@ def update_report_add(request, pk):
         if form.is_valid():
             form.save()
             # This is to set the color on the approvals page, needs to be reimagined to be more dynamic, and also validate upon submission - triggering a popup confirm page if warning or fail
-            if instance.strength > 50:
+            if instance.strength > 55:
                 instance.result = 0
-            elif instance.strength < 40:
+            elif instance.strength < 50:
                 instance.result = 2
             else:
                 instance.result = 1

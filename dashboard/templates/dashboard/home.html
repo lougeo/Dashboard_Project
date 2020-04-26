@@ -8,29 +8,29 @@
                 <div class='card text-center mb-3', id='in-lab'>
                     <div class='card-block'>
                         <div class='card-header'>
-                            <h5 class='card-title'>Total Samples in Lab</h5>
+                            <h5 class='card-title'>{{ card_titles.0 }}</h5>
                         </div>
                         <div class='card-body'>
-                            <h3 class='card-title'>{{ in_lab }}</h3>
+                            <h3 class='card-title'>{{ card_1 }}</h3>
                         </div>
                     </div>
                 </div>
                 <div class='card text-center mb-3', id='in-lab'>
                     <div class='card-block'>
                         <div class='card-header'>
-                            <h5 class='card-title'>Breaks Today</h5>
+                            <h5 class='card-title'>{{ card_titles.1 }}</h5>
                         </div>
                         <div class='card-body'>
-                            <h3 class='card-title'>{{ breaks_today }}</h3>
+                            <h3 class='card-title'>{{ card_2 }}</h3>
                         </div>
                     </div>
                 </div>
                 <div class='card text-center mb-3', id='in-lab'>
                     <div class='card-header'>
-                        <h5 class='card-title'>Waiting Approval</h5>
+                        <h5 class='card-title'>{{ card_titles.2 }}</h5>
                     </div>
                     <div class='card-body'>
-                        <h3 class='card-title'>{{ waiting_approval }}</h3>
+                        <h3 class='card-title'>{{ card_2 }}</h3>
                     </div>
                 </div>
             </div>
@@ -41,7 +41,7 @@
         <div class='col'>
             <div class='card card-body'>
                 <form method='GET'>
-                    {{ myFilter.form }}
+                    {{ myFilter.form|crispy }}
                     <button class='btn btn-primary' type='submit'>Search</button>
                 </form>
             </div>

@@ -18,64 +18,71 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">EXL Engineering</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                {% if request.user.groups.first.name == "Manager" %}
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'new_report' %}">New Report</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'report_approval' %}">Approvals</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'update_report' %}">Update Report</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'new_project' %}">New Project</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Add User</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile' %}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                    </li>
-                {% elif request.user.groups.first.name == "Technician" %}
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'new_report' %}">New Report</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'update_report' %}">Update Report</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile' %}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile' %}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                    </li>
-                {% endif %}
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">EXL Engineering</a>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    {% if request.user.groups.first.name == "Manager" %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'new_report' %}">New Report</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'report_approval' %}">Approvals</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'update_report' %}">Update Report</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'new_project' %}">New Project</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Add User</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    {% elif request.user.groups.first.name == "Technician" %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'new_report' %}">New Report</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'update_report' %}">Update Report</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <ul class="navbar-header navbar-nav navbar-right">
+                <li class="navbar-brand">{{ request.user.username }}</li>
             </ul>
         </div>
     </nav>

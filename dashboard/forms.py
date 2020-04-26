@@ -29,12 +29,35 @@ class ReportSelectorForm(forms.Form):
 
 
 class UpdateSampleForm(ModelForm):
+    confirm = forms.BooleanField(initial=False, required=False, widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        CONFIRM_MSG = {1:"Warning: Failure", 2:"Caution: Near Failure"}
+        confirm_set = set(CONFIRM_MSG.values())
+        if confirm_set.intersection(self.non_field_errors()):
+            self.fields['confirm'].widget = forms.CheckboxInput()
+
+    def clean(self):
+        super().clean()
+        CONFIRM_MSG = {1:"Warning: Failure", 2:"Caution: Near Failure"}
+        if 'confirm' in self.cleaned_data and not self.cleaned_data['confirm']:
+            if 'strength' in self.cleaned_data:
+
+                value = self.cleaned_data['strength']
+                # Change 50 to model value - create model for fail points
+                if value < 50:
+                    self.add_error(None, forms.ValidationError(CONFIRM_MSG[1]))
+                elif value < 55:
+                    self.add_error(None, forms.ValidationError(CONFIRM_MSG[2]))
+
     class Meta:
         model = ConcreteSample
         fields = ['width', 
                   'height',  
                   'weight',
-                  'strength']
+                  'strength',
+                  'confirm']
 
 class SampleSelectorForm(forms.Form):
     id = forms.IntegerField(widget=forms.HiddenInput())

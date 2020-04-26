@@ -26,6 +26,16 @@
                         <td>{{ form.strength|as_crispy_field }}</td>
                     </tr>
                 </table>
+                {% if form.confirm in forms.hidden_fields %}
+                    {{ form.confirm }}
+                {% else %}
+                    {% if 'Warning' in form.non_field_errors.as_text %}
+                        <div class="alert alert-danger">{{ form.non_field_errors.as_text }}</div>
+                    {% else %}
+                    <div class="alert alert-warning">{{ form.non_field_errors.as_text }}</div>
+                    {% endif %}
+                        {{ form.confirm|as_crispy_field }}
+                {% endif %}
                 <div class='form-group'>
                     <button class='btn btn-outline-info' type='submit'>Submit</button>
                 </div>
