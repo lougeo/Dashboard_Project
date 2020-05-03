@@ -49,8 +49,7 @@ def home(request):
         card_titles = ['Total Samples in Lab', 'Breaks Today', 'Waiting Approval']
 
 
-    myFilter = ReportFilter(request.GET, queryset=reports)
-    reports = myFilter.qs
+    myFilter = ReportFilter(request.GET, request=request, queryset=reports)
 
     context = {'reports':reports,
                'samples':samples,
@@ -171,5 +170,9 @@ def report_approval(request):
         reports = ConcreteSample.objects.filter(status=1)
     return render(request, 'dashboard/report_approval.html', {'reports':reports, 'form':form})
 
-
+@login_required
+def cr_view(request, pk):
+    instance = ConcreteReport.objects.get(pk=pk)
+    samples = instance.samples.all()
+    return render(request, 'dashboard/view_cr.html', {'instance':instance, 'samples':samples})
 

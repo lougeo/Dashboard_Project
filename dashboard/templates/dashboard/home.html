@@ -39,9 +39,17 @@
     <br>
     <div class='row'>
         <div class='col'>
-            <div class='card card-body'>
+            <div class='card-body'>
                 <form method='GET'>
-                    {{ myFilter.form|crispy }}
+                    <table class='table table-sm'>
+                        <tr>
+                            {% for i in myFilter.form %}
+                                <td>
+                                    {{ i|as_crispy_field }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    </table>
                     <button class='btn btn-primary' type='submit'>Search</button>
                 </form>
             </div>
@@ -52,24 +60,43 @@
         <div class='col-md'>
             <div class='card card-body'>
                 <table class='table table-sm'>
-                    <tr>
-                        <th>Client</th>
-                        <th>Project</th>
-                        <th>ID</th>
-                        <th>Date Cast</th>
-                        <th>Date Received</th>
-                        <th>Update</th>
-                    </tr>
-                    {% for report in reports %}
+                    {% if request.user.groups.first.name == "Manager" or request.user.groups.first.name == "Technician" %}
                         <tr>
-                            <td>{{ report.project_name.company }}</td>
-                            <td>{{ report.project_name }}</td>
-                            <td>{{ report.id }}</td>
-                            <td>{{ report.date_cast }}</td>
-                            <td>{{ report.date_received }}</td>
-                            <td><a class='btn btn-sm btn-info' href="#">Update</a></td>
+                            <th>Client</th>
+                            <th>Project</th>
+                            <th>ID</th>
+                            <th>Date Cast</th>
+                            <th>Date Received</th>
+                            <th>Update</th>
                         </tr>
-                    {% endfor %}
+                        {% for report in myFilter.qs %}
+                            <tr>
+                                <td>{{ report.project_name.company }}</td>
+                                <td>{{ report.project_name }}</td>
+                                <td>{{ report.id }}</td>
+                                <td>{{ report.date_cast }}</td>
+                                <td>{{ report.date_received }}</td>
+                                <td><a class='btn btn-sm btn-info' href="#">Update</a></td>
+                            </tr>
+                        {% endfor %}
+                    {% elif request.user.groups.first.name == "Client" %}
+                        <tr>
+                            <th>Project</th>
+                            <th>ID</th>
+                            <th>Date Cast</th>
+                            <th>Date Received</th>
+                            <th>View</th>
+                        </tr>
+                        {% for report in myFilter.qs %}
+                            <tr>
+                                <td>{{ report.project_name }}</td>
+                                <td>{{ report.id }}</td>
+                                <td>{{ report.date_cast }}</td>
+                                <td>{{ report.date_received }}</td>
+                                <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
                 </table>
             </div>
         </div>

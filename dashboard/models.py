@@ -25,7 +25,7 @@ class ConcreteReport(models.Model):
 class ConcreteSample(models.Model):
 
     # Identifiers
-    report = models.ForeignKey(ConcreteReport, on_delete=models.CASCADE)
+    report = models.ForeignKey(ConcreteReport, on_delete=models.CASCADE, related_name='samples')
     # 0:new, 1:modified, 2:approved
     status = models.PositiveSmallIntegerField(default=0)
     cast_day = models.DateField()
