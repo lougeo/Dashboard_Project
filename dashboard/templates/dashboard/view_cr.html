@@ -1,7 +1,137 @@
 {% extends "dashboard/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-    {{ user.id }}
-    {{ instance.id }}
-    {{ samples }}
+    <div class='container p-3 my-3 border'>
+        <div class='row'>
+            <div class='col-8'>
+                <p>
+                    EXL Engineering <br>
+                    Dean Grimm<br>
+                    Unit 109 - 7198 Vantage Way<br>
+                    Delta, BC, V4G 1K7<br><br>    
+                </p>
+            </div>
+            <div class='col-4'>
+                <p>
+                    <b>Phone:</b> 604-258-8113 <br>
+                    <b>Fax:</b> 604-948-9064 <br>
+                    <a href="#">dgrimm@exlengineering.com</a>
+                </p>
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col-6'>
+                <p>
+                    {{ instance.project_name.company }} <br>
+                </p>
+            </div>
+            <div class='col-3'>
+                <p>
+                    Project: <br>
+                    Technician: <br>
+                    Date Cast: <br>
+                    Date Received: <br>
+                </p>
+            </div>
+            <div class='col-3'>
+                <p>
+                {{ instance.project_name }} <br>
+                {{ instance.technician }} <br>
+                {{ instance.date_cast }} <br>
+                {{ instance.date_received }}
+                </p> 
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col'>
+                <p>
+                    Cast Day
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Break Day
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Width
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Height
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Weight
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Strength
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Result
+                </p>
+            </div>
+        </div>
+        {% for sample in samples %}
+            <div class='row'>
+                <div class='col'>
+                    <p>
+                        {{ sample.cast_day }}
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        {{ sample.break_day }}
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        {{ sample.width }}
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        {{ sample.height }}
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        {{ sample.weight }}
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        {{ sample.strength }}
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        {% if sample.result == 0 %}
+                            Pass
+                        {% elif sample.result == 1 or sample.result == 2 %}
+                            Fail
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+        <div class='row'>
+            <div class='col'>
+                <p>
+                    Mix ID: <br>
+                    Temp: <br>
+                    Driver: <br>
+                    Storage type: 
+                </p>
+            </div>
+        </div>
+    </div>
+
 {% endblock content %}
