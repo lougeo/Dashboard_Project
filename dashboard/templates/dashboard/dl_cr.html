@@ -1,0 +1,206 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Report {{ instance.id }}</title>
+        <style type="text/css">
+            @page {
+                size: letter portrait;
+                margin: 2cm;
+            }
+            .body {
+                font-weight: 200;
+                font-size: 12px;
+            }
+            .table {
+                width: 100%;
+            }
+            table, th, td {
+                border: 1px solid black;
+            }
+            th, td {
+                padding-top: 2px;
+            }
+            .header {
+                font-size: 20px;
+                font-weight: 100;
+                text-align: center;
+                color: #007cae;
+            }
+            .title {
+                font-size: 22px;
+                font-weight: 100;
+               /* text-align: right;*/
+               padding: 10px 20px 0px 20px;  
+            }
+            .title span {
+                color: #007cae;
+            }
+            .details {
+                padding: 10px 20px 0px 20px;
+                text-align: left !important;
+                /*margin-left: 40%;*/
+            }
+            .hrItem {
+                border: none;
+                height: 1px;
+                /* Set the hr color */
+                color: #333; /* old IE */
+                background-color: #fff; /* Modern Browsers */
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td colspan="3">
+                    <img src="{% static 'images/logos/exl_logo.png' %}" alt="logo">
+                    <br>    
+                </td>
+                <td style='text-align: right;' colspan="4">
+                    <p>
+                        Dean Grimm<br>
+                        Unit 109 - 7198 Vantage Way<br>
+                        Delta, BC, V4G 1K7<br>
+                        <b>Phone:</b> 604-258-8113 <br>
+                        <b>Fax:</b> 604-948-9064 <br>
+                        <a href="#">dgrimm@exlengineering.com</a>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <p>
+                        {{ instance.project_name.company }} <br>
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Project: <br>
+                        Technician: <br>
+                        Date Cast: <br>
+                        Date Received: <br>
+                    </p>
+                </td>
+                <td>
+                    <p>
+                    {{ instance.project_name }} <br>
+                    {{ instance.technician }} <br>
+                    {{ instance.date_cast }} <br>
+                    {{ instance.date_received }}
+                    </p> 
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>
+                        Cast Day
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Break Day
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Width
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Height
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Weight
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Strength
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Result
+                    </p>
+                </td>
+            </tr>
+            {% for sample in samples %}
+                <tr>
+                    <td>
+                        <p>
+                            {{ sample.cast_day }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.break_day }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.width }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.height }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.weight }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.strength }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {% if sample.result == 0 %}
+                                Pass
+                            {% elif sample.result == 1 or sample.result == 2 %}
+                                Fail
+                            {% endif %}
+                        </p>
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    <p>
+                        Mix ID: <br>
+                        Temp (*C): <br>
+                        Supplier: <br>
+                        Storage type: 
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        CH420 <br>
+                        22 <br>
+                        LaFarge <br>
+                        Box 
+                    </p>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    <p>
+                        Approved By: <br> 
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Dean Grimm <br>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

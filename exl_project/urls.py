@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from users import views as user_views
 from dashboard import views as dashboard_views
 
@@ -33,5 +35,11 @@ urlpatterns = [
     path('update-report-add/<int:pk>/', dashboard_views.update_report_add, name='update_report_add'),
     path('report-approval/', dashboard_views.report_approval, name='report_approval'),
     path('view-report/<int:pk>/', dashboard_views.cr_view, name='cr_view'),
+    path('view-pdf/<int:pk>/', dashboard_views.ViewPDF, name='ViewPDF'),
+    path('download-pdf/<int:pk>/', dashboard_views.DownloadPDF, name='DownloadPDF'),
+
     path('', include('dashboard.urls'))
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

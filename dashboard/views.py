@@ -8,6 +8,7 @@ from django.db.models import Q
 from .forms import *
 from .models import *
 from .filters import *
+from .utils import *
 
 def is_employee(user):
     if user.groups.filter(name="Manager").exists() | user.groups.filter(name="Technician").exists():
@@ -176,3 +177,22 @@ def cr_view(request, pk):
     samples = instance.samples.all()
     return render(request, 'dashboard/view_cr.html', {'instance':instance, 'samples':samples})
 
+# View Report PDF
+@login_required 
+def ViewPDF(request, pk):
+    instance = ConcreteReport.objects.get(pk=pk)
+    samples = instance.samples.all()
+    pdf = render_to_pdf('dashboard/dl_cr.html', {'instance':instance, 'samples':samples})
+    return HttpResponse(pdf, content_type='application/pdf')
+
+# Download Report PDF
+@login_required
+def DownloadPDF(request, pk):
+    instance = ConcreteReport.objects.get(pk=pk)
+    samples = instance.samples.all()
+    pdf = render_to_pdf('dashboard/view_cr.html', {'instance':instance, 'samples':samples})
+    response = HttpResponse(pdf, content_type='application/pdf')
+    filename = f"Report_{instance.id}.pdf"
+    content = f"attachment; filename={filename}"
+    response['Content-Disposition'] = content
+    return response
