@@ -1,6 +1,6 @@
 from django import forms
 from django.utils import timezone
-from django.forms import ModelForm
+from django.forms import ModelForm, inlineformset_factory
 from .models import ConcreteReport, ConcreteSample
 from users.models import *
 
@@ -24,16 +24,17 @@ class ReportForm(ModelForm):
                   'break_days', 
                   'technician']
 
+# Same thing as ^. Needs some JS to dynamically alter the options available for project based on selection of client
+# Maybe change widget on the FK fields to something which the instance will show
+class FullReportUpdateForm(ModelForm):
+    class Meta:
+        model = ConcreteReport
+        exclude = ['num_samples', 'status', 'break_days']
 
 class NewSampleForm(ModelForm):
     class Meta:
         model = ConcreteSample
         fields = ['report', 'cast_day', 'break_day']
-
-# Need to set this to query only reports which are active (might be easier to do in the view)
-class ReportSelectorForm(forms.Form):
-    selected_report = forms.ModelChoiceField(queryset=ConcreteSample.objects.filter(break_day=timezone.now().date()))
-
 
 class UpdateSampleForm(ModelForm):
     confirm = forms.BooleanField(initial=False, required=False, widget=forms.HiddenInput)
@@ -68,3 +69,14 @@ class UpdateSampleForm(ModelForm):
 
 class SampleSelectorForm(forms.Form):
     id = forms.IntegerField(widget=forms.HiddenInput())
+
+# Need to set this to query only reports which are active (might be easier to do in the view)
+class ReportSelectorForm(forms.Form):
+    selected_report = forms.ModelChoiceField(queryset=ConcreteSample.objects.filter(break_day=timezone.now().date()))
+
+#################### FORMSETS #############################
+
+SampleFormSet = inlineformset_factory(ConcreteReport, 
+                                      ConcreteSample, 
+                                      fields=('break_day', 'width', 'height', 'weight', 'strength', 'result'),
+                                      extra=1)

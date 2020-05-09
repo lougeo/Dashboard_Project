@@ -171,11 +171,47 @@ def report_approval(request):
         reports = ConcreteSample.objects.filter(status=1)
     return render(request, 'dashboard/report_approval.html', {'reports':reports, 'form':form})
 
+# View full concrete Report
 @login_required
 def cr_view(request, pk):
     instance = ConcreteReport.objects.get(pk=pk)
     samples = instance.samples.all()
     return render(request, 'dashboard/view_cr.html', {'instance':instance, 'samples':samples})
+
+# Update full concrete report
+@login_required
+def cr_update(request, pk):
+    instance = ConcreteReport.objects.get(pk=pk)
+    samples = instance.samples.all()
+
+
+    if request.method == 'POST':
+        report_form = FullReportUpdateForm(request.POST, prefix='form1', instance=instance)
+        sample_forms = SampleFormSet(request.POST, prefix='form2', instance=instance)
+
+        if report_form.is_valid() and report_form.has_changed():
+            report_form.save()
+
+        if sample_forms.is_valid() and sample_forms.has_changed():
+            sample_forms.save()
+
+        if (report_form.is_valid() and report_form.has_changed()) or (sample_forms.is_valid() and sample_forms.has_changed()):
+            messages.success(request, f'Report Updated for {instance}')
+            return redirect('home')
+
+        else:
+            messages.success(request, f'Fuck off')
+            print(sample_forms.errors)
+            print(report_form.errors)
+            pass
+
+    report_form = FullReportUpdateForm(instance=instance, prefix='form1')
+    sample_forms = SampleFormSet(instance=instance, prefix='form2')
+
+    return render(request, 
+                 'dashboard/update_full_cr.html', 
+                 {'instance':instance, 'samples':samples, 'report_form':report_form, 'sample_forms':sample_forms})
+
 
 # View Report PDF
 @login_required 

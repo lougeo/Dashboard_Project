@@ -44,9 +44,13 @@
                     <table class='table table-sm'>
                         <tr>
                             {% for i in myFilter.form %}
-                                <td>
-                                    {{ i|as_crispy_field }}
-                                </td>
+                                {% if request.user.groups.first.name == "Client" and i.label == 'Client' %}
+                            
+                                {% else %}
+                                    <td>
+                                        {{ i|as_crispy_field }}
+                                    </td>
+                                {% endif %}
                             {% endfor %}
                         </tr>
                     </table>
@@ -67,6 +71,8 @@
                             <th>ID</th>
                             <th>Date Cast</th>
                             <th>Date Received</th>
+                            <th>Status</th>
+                            <th>View</th>
                             <th>Update</th>
                         </tr>
                         {% for report in myFilter.qs %}
@@ -76,7 +82,15 @@
                                 <td>{{ report.id }}</td>
                                 <td>{{ report.date_cast }}</td>
                                 <td>{{ report.date_received }}</td>
-                                <td><a class='btn btn-sm btn-info' href="#">Update</a></td>
+                                <td>
+                                    {% if report.status == 0 %}
+                                        Incomplete
+                                    {% else %}
+                                        Complete
+                                    {% endif %}
+                                </td>
+                                <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
+                                <td><a class='btn btn-sm btn-warning' href="{% url 'cr_update' report.id %}">Update</a></td>
                             </tr>
                         {% endfor %}
                     {% elif request.user.groups.first.name == "Client" %}
@@ -85,6 +99,7 @@
                             <th>ID</th>
                             <th>Date Cast</th>
                             <th>Date Received</th>
+                            <th>Status</th>
                             <th>View</th>
                         </tr>
                         {% for report in myFilter.qs %}
@@ -93,6 +108,13 @@
                                 <td>{{ report.id }}</td>
                                 <td>{{ report.date_cast }}</td>
                                 <td>{{ report.date_received }}</td>
+                                <td>
+                                    {% if report.status == 0 %}
+                                        Incomplete
+                                    {% else %}
+                                        Complete
+                                    {% endif %}
+                                </td>
                                 <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
                             </tr>
                         {% endfor %}

@@ -1,0 +1,162 @@
+{% extends "dashboard/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class='container p-3 my-3 border'>
+            <div class='row border-bottom'>
+                <div class='col-8'>
+                    <p>
+                        <img src="{% static 'images/logos/exl_logo.png' %}">
+                        <br>
+                    </p>
+                </div>
+                <div class='col-4'>
+                    <p>
+                        Dean Grimm<br>
+                        Unit 109 - 7198 Vantage Way<br>
+                        Delta, BC, V4G 1K7<br>
+                        <b>Phone:</b> 604-258-8113 <br>
+                        <b>Fax:</b> 604-948-9064 <br>
+                        <a href="#">dgrimm@exlengineering.com</a>
+                    </p>
+                </div>
+            </div>
+            <div class='row'>
+                <div class='col-6'>
+                    {% for hidden in report_form.hidden_fields %}
+                        {{ report_form.id }}
+                        {{ report_form.status }}
+                        {{ report_form.break_days }}
+                    {% endfor %}
+                    <p>
+                        {{ instance.project_name.company }} <br>
+                    </p>
+                </div>
+                <div class='col-3'>
+                    <p>
+                        {{ report_form.project_name|as_crispy_field }} <br>
+                        {{ report_form.date_cast|as_crispy_field }} <br>
+                    </p>
+                </div>
+                <div class='col-3'>
+                    <p>
+                        {{ report_form.technician|as_crispy_field }} <br>
+                        {{ report_form.date_received|as_crispy_field }}
+                    </p> 
+                </div>
+            </div>
+            <hr>
+            <div class='row'>
+                <div class='col'>
+                    <p>
+                        Break Day
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        Width
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        Height
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        Weight
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        Strength
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        Result
+                    </p>
+                </div>
+            </div>
+            {{ sample_forms.management_form }}
+            {% for sample in sample_forms %}
+                {% for hidden in sample.hidden_fields %}
+                    {{ sample.id }}
+                {% endfor %}
+                <div class='row'>
+                    <div class='col'>
+                        <p>
+                            {{ sample.break_day|as_crispy_field }}
+                        </p>
+                    </div>
+                    <div class='col'>
+                        <p>
+                            {{ sample.width|as_crispy_field }}
+                        </p>
+                    </div>
+                    <div class='col'>
+                        <p>
+                            {{ sample.height|as_crispy_field }}
+                        </p>
+                    </div>
+                    <div class='col'>
+                        <p>
+                            {{ sample.weight|as_crispy_field }}
+                        </p>
+                    </div>
+                    <div class='col'>
+                        <p>
+                            {{ sample.strength|as_crispy_field }}
+                        </p>
+                    </div>
+                    <div class='col'>
+                        <p>
+                            {{ sample.result|as_crispy_field }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+            <hr>
+            <div class='row'>
+                <div class='col'>
+                    <p>
+                        Mix ID: <br>
+                        Temp (*C): <br>
+                        Supplier: <br>
+                        Storage type: 
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        CH420 <br>
+                        22 <br>
+                        LaFarge <br>
+                        Box 
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        Approved By: <br> 
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        Dean Grimm <br>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class='container  p-3 my-3'>
+            <div class='row'>
+                <div class='col' >
+                    <a class='btn btn-md btn-danger' href="#">Delete</a>
+                </div>
+                <div class='col text-right'>
+                    <button class='btn btn-md btn-success' type='submit'>Submit</button>        
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}
