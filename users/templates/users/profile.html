@@ -1,4 +1,45 @@
 {% extends "dashboard/base.html" %}
 {% block content %}
-    <div class='container'><h1>Profile page</h1></div>
+    <div class='card-body'>
+        <h1>{{ profile.first_name }} {{ profile.last_name }}</h1>
+        <br>
+        <h3>Contact Info:</h3>
+        <br>
+        <div class='row'>
+            <div class='col'>
+                {{ profile.company }}
+            </div>
+            <div class='col'>
+                {{ profile.user.email }}
+            </div>
+            <div class='col'>
+                {{ profile.phone }}
+            </div>
+            <div class='col'></div>
+        </div>
+        <div class='row'>
+            <div class='col'>
+                {{ profile.address }}
+            </div>
+            <div class='col'>
+                {{ profile.city }}
+            </div>
+            <div class='col'>
+                {{ profile.province }}
+            </div>
+            <div class='col'>
+                {{ profile.country }}
+            </div>
+        </div>
+        <br>
+        <h3>Options:</h3>
+        <br>
+        <ul>
+            <li><a class='btn btn-md btn-primary' href="{% url 'profile_update' user.profile.id %}">Update Profile</a></li>
+            <br>
+            <li><a class='btn btn-md btn-primary' href="#">Change Email</a></li>
+            <br>
+            <li><a class='btn btn-md btn-primary' href="#">Change Password</a></li>
+        </ul>
+    </div>
 {% endblock content %}

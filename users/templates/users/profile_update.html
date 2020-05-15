@@ -1,0 +1,12 @@
+{% extends "dashboard/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class='card-body'>
+        <h1>{{ profile }}</h1>
+        <br>
+        <form method='POST'>
+            {{ form|crispy }}
+            <button class='btn btn-md btn-success' type="submit">Update</button>
+        </form>
+    </div>
+{% endblock content %}

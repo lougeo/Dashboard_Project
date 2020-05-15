@@ -13,12 +13,39 @@ class UserRegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'group']
+        fields = ['username', 
+                  'email', 
+                  'password1', 
+                  'password2', 
+                  'group']
 
+class ProfileForm(ModelForm):
+    PROVINCE_CHOICES = [('BC', 'British Colombia'),
+                        ('AB', 'Alberta'),
+                        ('SK', 'Saskatchewan'),
+                        ('MB', 'Manitoba'),
+                        ('ON', 'Ontario'),
+                        ('QC', 'Quebec'),
+                        ('NB', 'New Brunswick'),
+                        ('NS', 'Nova Scotia'),
+                        ('PE', 'Prince Edward Island'),
+                        ('NL', 'Newfoundlan and Labrador'),
+                        ('YT', 'Yukon'),
+                        ('NT', 'Northwest Territories'),
+                        ('NU', 'Nunavut')]
+    COUNTRY_CHOICES = [('CA', 'Canada'), 
+                       ('USA', 'United States')]
+
+    province = forms.ChoiceField(choices=PROVINCE_CHOICES)
+    country = forms.ChoiceField(choices=COUNTRY_CHOICES)
+
+    class Meta:
+        model = Profile
+        exclude = ['user']
 
 class NewProjectForm(ModelForm):
     company = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'), 
                                      required=True)
     class Meta:
         model = Project
-        fields = ['company', 'name']
+        fields = '__all__'

@@ -79,4 +79,4 @@ class ReportSelectorForm(forms.Form):
 SampleFormSet = inlineformset_factory(ConcreteReport, 
                                       ConcreteSample, 
                                       fields=('break_day', 'width', 'height', 'weight', 'strength', 'result'),
-                                      extra=1)
+                                      extra=0)

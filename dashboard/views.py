@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import *
 from .models import *
 from .filters import *
@@ -24,7 +25,7 @@ def is_manager(user):
 #@user_passes_test(is_employee, redirect_field_name='client_home')
 def home(request):
     if is_employee(request.user):
-        reports = ConcreteReport.objects.all()
+        reports = ConcreteReport.objects.all().order_by('status', '-date_cast')
         samples = ConcreteSample.objects.all()
 
         # Total in lab
@@ -35,9 +36,10 @@ def home(request):
         card_3 = samples.filter(status=1).count()
 
         card_titles = ['Total Samples in Lab', 'Breaks Today', 'Waiting Approval']
+
     else:
         client = request.user.id
-        reports = ConcreteReport.objects.filter(project_name__company__user__id=client)
+        reports = ConcreteReport.objects.filter(project_name__company__user__id=client).order_by('status', '-date_cast')
         samples = ConcreteSample.objects.filter(report__project_name__company__user__id=client)
 
         # Total in lab
@@ -49,16 +51,29 @@ def home(request):
 
         card_titles = ['Total Samples in Lab', 'Breaks Today', 'Waiting Approval']
 
+    
 
+    # Instantiating the filter
     myFilter = ReportFilter(request.GET, request=request, queryset=reports)
+    filtered = myFilter.qs
+    
+    # Pagination
+    paginator = Paginator(reports, 5)
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.get_page(1)
+    except EmptyPage:
+        page_obj = paginator.get_page(paginator.num_pages)
 
     context = {'reports':reports,
-               'samples':samples,
                'card_1':card_1,
                'card_2':card_2,
                'card_3':card_3, 
                'card_titles':card_titles,
-               'myFilter':myFilter}
+               'myFilter':myFilter,
+               'page_obj':page_obj}
 
     return render(request, 'dashboard/home.html', context)
 
@@ -180,30 +195,61 @@ def cr_view(request, pk):
 
 # Update full concrete report
 @login_required
+@user_passes_test(is_employee)
 def cr_update(request, pk):
     instance = ConcreteReport.objects.get(pk=pk)
     samples = instance.samples.all()
 
-
     if request.method == 'POST':
-        report_form = FullReportUpdateForm(request.POST, prefix='form1', instance=instance)
-        sample_forms = SampleFormSet(request.POST, prefix='form2', instance=instance)
 
-        if report_form.is_valid() and report_form.has_changed():
-            report_form.save()
+        # Checks which button is clicked
+        # Updates report and samples
+        if 'update' in request.POST:
+            report_form = FullReportUpdateForm(request.POST, prefix='form1', instance=instance)
+            sample_forms = SampleFormSet(request.POST, prefix='form2', instance=instance)
+            
+            # Saving the various forms
+            if report_form.is_valid() and report_form.has_changed():
+                report_form.save()
+            if sample_forms.is_valid() and sample_forms.has_changed():
+                sample_forms.save()
 
-        if sample_forms.is_valid() and sample_forms.has_changed():
-            sample_forms.save()
+            # Checking, and marking if report is now complete
+            # This should be made slightly more comprehensive
+            if sample_forms.is_valid():
+                num_samples = 0
+                num_complete = 0
+                for sample in sample_forms:
+                    s_inst = sample.cleaned_data['id']
+                    num_samples += 1
+                    # Auto approving modified samples
+                    if sample.has_changed() and sample.cleaned_data['strength'] != None:
+                        s_inst.status = 2
+                        s_inst.save()
+                    if s_inst.status == 2: #sample.cleaned_data['id'].status == 2
+                        num_complete += 1
+                print(f'numsamples: {num_samples}')
+                print(f'numcomplete: {num_complete}')
+                if num_samples == num_complete:
+                    instance.status = 1
+                    instance.save()
 
-        if (report_form.is_valid() and report_form.has_changed()) or (sample_forms.is_valid() and sample_forms.has_changed()):
-            messages.success(request, f'Report Updated for {instance}')
+            # If either of the two form save conditions execute, redirects to home page and flashes message
+            if (report_form.is_valid() and report_form.has_changed()) or (sample_forms.is_valid() and sample_forms.has_changed()):
+                messages.success(request, f'Report Updated for {instance}')
+                return redirect('home')
+            # Case where submit is pressed but nothing has changed
+            else:
+                messages.success(request, f'Fuck off')
+                print(sample_forms.errors)
+                print(report_form.errors)
+                pass
+        
+        # Checks what submit button was clicked
+        # Deletes report
+        elif 'delete' in request.POST:
+            instance.delete()
             return redirect('home')
-
-        else:
-            messages.success(request, f'Fuck off')
-            print(sample_forms.errors)
-            print(report_form.errors)
-            pass
 
     report_form = FullReportUpdateForm(instance=instance, prefix='form1')
     sample_forms = SampleFormSet(instance=instance, prefix='form2')

@@ -20,7 +20,7 @@ class ConcreteReport(models.Model):
 
 
     def __str__(self):
-        return f'{self.project_name}, {self.date_received}'
+        return f'{self.project_name}, {self.id}'
 
 class ConcreteSample(models.Model):
 
@@ -33,12 +33,33 @@ class ConcreteSample(models.Model):
     break_day_num = models.PositiveSmallIntegerField()
 
     # Metrics
-    width = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    height = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    weight = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    strength = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    width = models.DecimalField(max_digits=10, 
+                                decimal_places=2, 
+                                null=True, 
+                                blank=True)
+    height = models.DecimalField(max_digits=10, 
+                                 decimal_places=2, 
+                                 null=True, 
+                                 blank=True)
+    weight = models.DecimalField(max_digits=10, 
+                                 decimal_places=2, 
+                                 null=True, 
+                                 blank=True)
+    strength = models.DecimalField(max_digits=10, 
+                                   decimal_places=2, 
+                                   null=True, 
+                                   blank=True)
     # 0:pass 1:warning 2:fail
-    result = models.PositiveSmallIntegerField(null=True)
+    result = models.PositiveSmallIntegerField(choices=[(0, 'Pass'), 
+                                                       (1, 'Warning'), 
+                                                       (2, 'Fail')], 
+                                              null=True, 
+                                              blank=True)
 
     def __str__(self):
         return f'{self.id}, {self.status}'
+
+    def save(self, *args, **kwargs):
+        super(ConcreteSample, self).save(*args, **kwargs)
+        print('Did this attribute update? (attr):', self.status)
+        print('Save method executed!')

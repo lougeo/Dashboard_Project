@@ -15,19 +15,39 @@ def register(request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
+            new_user = form.save()
+            pk = Profile.objects.get(user__username=username).id
+            
             # This seems like a janky solution to update the group
             group = form.cleaned_data['group']
-            group.user_set.add(form.save())
+            group.user_set.add(new_user)
+
             messages.success(request, f'Account created for {username}')
-            # return redirect('url name')
-            # redirect to a page which says account successfully created and asks what user wants to do
+            return redirect('profile_update', pk=pk)
     else:
         form = UserRegisterForm()
-    return render(request, 'users/register.html', {'form': form})
+    return render(request, 'users/register.html', {'form':form})
 
 @login_required
 def profile(request):
-    return render(request, 'users/profile.html')
+    instance = Profile.objects.get(pk=request.user.profile.id)
+
+    return render(request, 'users/profile.html', {'profile':instance})
+
+@login_required
+def profile_update(request, pk):
+    instance = Profile.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+
+    form = ProfileForm(instance=instance)
+
+    context = {'profile':instance,
+               'form':form}
+    return render(request, 'users/profile_update.html', context)
 
 # New Project page
 @login_required

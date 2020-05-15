@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <br>
-    <div class='row'>
+    <div class='row card-body'>
         <div class='col'>
             <div class='card-deck'>
                 <div class='card text-center mb-3', id='in-lab'>
@@ -60,67 +60,104 @@
         </div>
     </div>
     <br>
-    <div class='row'>
+    <div class='row card-body'>
         <div class='col-md'>
-            <div class='card card-body'>
-                <table class='table table-sm'>
-                    {% if request.user.groups.first.name == "Manager" or request.user.groups.first.name == "Technician" %}
+            <table class='table table-sm'>
+                {% if request.user.groups.first.name == "Manager" or request.user.groups.first.name == "Technician" %}
+                    <!-- <tr>
+                        <th>Client</th>
+                        <th>Project</th>
+                        <th>ID</th>
+                        <th>Date Cast</th>
+                        <th>Date Received</th>
+                        <th>Status</th>
+                        <th>View</th>
+                        <th>Update</th>
+                    </tr>
+                    {% for report in reports %}
                         <tr>
-                            <th>Client</th>
-                            <th>Project</th>
-                            <th>ID</th>
-                            <th>Date Cast</th>
-                            <th>Date Received</th>
-                            <th>Status</th>
-                            <th>View</th>
-                            <th>Update</th>
+                            <td>{{ report.project_name.company }}</td>
+                            <td>{{ report.project_name }}</td>
+                            <td>{{ report.id }}</td>
+                            <td>{{ report.date_cast }}</td>
+                            <td>{{ report.date_received }}</td>
+                            <td>
+                                {% if report.status == 0 %}
+                                    Incomplete
+                                {% else %}
+                                    Complete
+                                {% endif %}
+                            </td>
+                            <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
+                            <td><a class='btn btn-sm btn-warning' href="{% url 'cr_update' report.id %}">Update</a></td>
                         </tr>
-                        {% for report in myFilter.qs %}
-                            <tr>
-                                <td>{{ report.project_name.company }}</td>
-                                <td>{{ report.project_name }}</td>
-                                <td>{{ report.id }}</td>
-                                <td>{{ report.date_cast }}</td>
-                                <td>{{ report.date_received }}</td>
-                                <td>
-                                    {% if report.status == 0 %}
-                                        Incomplete
-                                    {% else %}
-                                        Complete
-                                    {% endif %}
-                                </td>
-                                <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
-                                <td><a class='btn btn-sm btn-warning' href="{% url 'cr_update' report.id %}">Update</a></td>
-                            </tr>
-                        {% endfor %}
-                    {% elif request.user.groups.first.name == "Client" %}
+                    {% endfor %} -->
+                    {% for report in myFilter.qs %}
                         <tr>
-                            <th>Project</th>
-                            <th>ID</th>
-                            <th>Date Cast</th>
-                            <th>Date Received</th>
-                            <th>Status</th>
-                            <th>View</th>
+                            <td>{{ report.project_name.company }}</td>
+                            <td>{{ report.project_name }}</td>
+                            <td>{{ report.id }}</td>
+                            <td>{{ report.date_cast }}</td>
+                            <td>{{ report.date_received }}</td>
+                            <td>
+                                {% if report.status == 0 %}
+                                    Incomplete
+                                {% else %}
+                                    Complete
+                                {% endif %}
+                            </td>
+                            <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
+                            <td><a class='btn btn-sm btn-warning' href="{% url 'cr_update' report.id %}">Update</a></td>
                         </tr>
-                        {% for report in myFilter.qs %}
-                            <tr>
-                                <td>{{ report.project_name }}</td>
-                                <td>{{ report.id }}</td>
-                                <td>{{ report.date_cast }}</td>
-                                <td>{{ report.date_received }}</td>
-                                <td>
-                                    {% if report.status == 0 %}
-                                        Incomplete
-                                    {% else %}
-                                        Complete
-                                    {% endif %}
-                                </td>
-                                <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
-                            </tr>
-                        {% endfor %}
+                    {% endfor %}
+                {% elif request.user.groups.first.name == "Client" %}
+                    <tr>
+                        <th>Project</th>
+                        <th>ID</th>
+                        <th>Date Cast</th>
+                        <th>Date Received</th>
+                        <th>Status</th>
+                        <th>View</th>
+                    </tr>
+                    {% for report in myFilter.qs %}
+                        <tr>
+                            <td>{{ report.project_name }}</td>
+                            <td>{{ report.id }}</td>
+                            <td>{{ report.date_cast }}</td>
+                            <td>{{ report.date_received }}</td>
+                            <td>
+                                {% if report.status == 0 %}
+                                    Incomplete
+                                {% else %}
+                                    Complete
+                                {% endif %}
+                            </td>
+                            <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </table>
+
+            <div class='pagination'>
+                {% if page_obj.has_other_pages %}
+                    {% if page_obj.has_previous %}
+                        <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+                        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
                     {% endif %}
-                </table>
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                    {% endif %}
+                {% endif %}
             </div>
+
         </div>
     </div>
 {% endblock content %}
