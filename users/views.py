@@ -38,15 +38,23 @@ def profile(request):
 def profile_update(request, pk):
     instance = Profile.objects.get(pk=pk)
     if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=instance)
+        form = ProfileForm(request.POST, instance=instance, prefix='form1')
+        email_form = UserEmailUpdateForm(request.POST, instance=request.user, prefix='form2')
         if form.is_valid():
             form.save()
+        if email_form.is_valid():
+            email_form.save()
+        if form.is_valid() or email_form.is_valid():
+            messages.success(request, f'Profile updated!')
             return redirect('profile')
 
-    form = ProfileForm(instance=instance)
+    form = ProfileForm(instance=instance, prefix='form1')
+    email_form = UserEmailUpdateForm(instance=request.user, prefix='form2')
 
     context = {'profile':instance,
-               'form':form}
+               'form':form,
+               'email_form':email_form}
+               
     return render(request, 'users/profile_update.html', context)
 
 # New Project page

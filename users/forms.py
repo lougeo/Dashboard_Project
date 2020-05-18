@@ -5,7 +5,6 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import *
 
 
-# Here it will have to be modified to also include what kind of user permissions this user will have
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField()
     group = forms.ModelChoiceField(queryset=Group.objects.all(), 
@@ -18,6 +17,11 @@ class UserRegisterForm(UserCreationForm):
                   'password1', 
                   'password2', 
                   'group']
+
+class UserEmailUpdateForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['email']
 
 class ProfileForm(ModelForm):
     PROVINCE_CHOICES = [('BC', 'British Colombia'),

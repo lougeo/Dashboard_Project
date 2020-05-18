@@ -19,7 +19,6 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from users import views as user_views
-from dashboard import views as dashboard_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,15 +28,11 @@ urlpatterns = [
     path('new-project/', user_views.new_project, name='new_project'),
     path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
-    path('new-report/', dashboard_views.new_report, name='new_report'),
-    path('new-report-add/', dashboard_views.new_report_add, name='new_report_add'),
-    path('update-report/', dashboard_views.update_report, name='update_report'),
-    path('update-report-add/<int:pk>/', dashboard_views.update_report_add, name='update_report_add'),
-    path('report-approval/', dashboard_views.report_approval, name='report_approval'),
-    path('view-report/<int:pk>/', dashboard_views.cr_view, name='cr_view'),
-    path('update-full-report/<int:pk>/', dashboard_views.cr_update, name='cr_update'),
-    path('view-pdf/<int:pk>/', dashboard_views.ViewPDF, name='ViewPDF'),
-    path('download-pdf/<int:pk>/', dashboard_views.DownloadPDF, name='DownloadPDF'),
+    path('password-reset/', auth_views.PasswordResetView.as_view(template_name='users/password_reset.html'), name='password_reset'),
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='users/password_reset_done.html'), name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='users/password_reset_confirm.html'), name='password_reset_confirm'),
+    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'), name='password_reset_complete'),
+
 
     path('', include('dashboard.urls'))
 ]

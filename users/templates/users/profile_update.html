@@ -5,6 +5,8 @@
         <h1>{{ profile }}</h1>
         <br>
         <form method='POST'>
+            {% csrf_token %}
+            {{ email_form|crispy }}
             {{ form|crispy }}
             <button class='btn btn-md btn-success' type="submit">Update</button>
         </form>
