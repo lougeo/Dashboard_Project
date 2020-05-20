@@ -2,19 +2,26 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class='container'>
-        <legend>Update Report</legend>
+        <br>
+        <h3>Sample Identification</h3>
+        <br>
         <table class="table">
             <tr>
                 <th>Project</th>
-                <th>ID</th>
+                <th>Report ID</th>
+                <th>Sample ID</th>
                 <th>Date Cast</th>
             </tr>
             <tr>
                 <td>{{ instance.report.project_name }}</td>
+                <td>{{ instance.report.id }}</td>
                 <td>{{ instance.id }}</td>
                 <td>{{ instance.cast_day }}</td>
             </tr>
         </table>
+        <br>
+        <h3>Update Sample</h3>
+        <br>
         <form method="POST">
             {% csrf_token %}
             <fieldset class='form-group'>
@@ -31,10 +38,11 @@
                 {% else %}
                     {% if 'Warning' in form.non_field_errors.as_text %}
                         <div class="alert alert-danger">{{ form.non_field_errors.as_text }}</div>
-                    {% else %}
-                    <div class="alert alert-warning">{{ form.non_field_errors.as_text }}</div>
+                    {% elif 'Caution' in form.non_field_errors.as_text %}
+                        <div class="alert alert-warning">{{ form.non_field_errors.as_text }}</div>
                     {% endif %}
-                        {{ form.confirm|as_crispy_field }}
+                    
+                    {{ form.confirm|as_crispy_field }}
                 {% endif %}
                 <div class='form-group'>
                     <button class='btn btn-outline-info' type='submit'>Submit</button>

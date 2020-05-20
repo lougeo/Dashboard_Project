@@ -63,3 +63,19 @@ class ConcreteSample(models.Model):
         super(ConcreteSample, self).save(*args, **kwargs)
         print('Did this attribute update? (attr):', self.status)
         print('Save method executed!')
+
+class SieveReport(models.Model):
+    # 0:incomplete 1:complete
+    status = models.PositiveSmallIntegerField(default=0)
+
+    # Need an ID tag that counts starting at 1 for each project
+    project_name = models.ForeignKey(Project, on_delete=models.CASCADE) # Change to PROTECT
+    technician = models.ForeignKey(User, on_delete=models.CASCADE, null=True, limit_choices_to={'groups__name':'Manager', 'groups__name':'Technician'}) # Figure out why it wont let me include both, also change to PROTECT
+    date_received = models.DateField(default=timezone.now)
+    date_sampled = models.DateField(default=timezone.now) # Change this to 
+    # Make some validation which checks num samples against the break days
+    num_samples = models.SmallIntegerField()    
+
+
+    def __str__(self):
+        return f'{self.project_name}, {self.id}'

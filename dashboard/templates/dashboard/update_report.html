@@ -2,31 +2,26 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class='container'>
+        <br>
+        <h1>Today's Samples</h1>
+        <br>
         <table class="table">
             <tr>
-                <td>Project</td>
-                <td>ID</td>
-                <td>Date Cast</td>
-                <td>Update</td>
+                <th>Project</th>
+                <th>Project ID</th>
+                <th>Sample ID</th>
+                <th>Date Cast</th>
+                <th>Action</th>
             </tr>
-            {% for report in reports %}
+            {% for sample in samples %}
                 <tr>
-                    <td>{{ report.report.project_name }}</td>
-                    <td>{{ report.report.id }}</td>
-                    <td>{{ report.report.date_cast }}</td>
-                    <td><a class="btn btn-sm btn-info" href="{% url 'update_report_add' report.id %}">Update</a></td>
+                    <td>{{ sample.report.project_name }}</td>
+                    <td>{{ sample.report.id }}</td>
+                    <td>{{ sample.id }}</td>
+                    <td>{{ sample.report.date_cast }}</td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'update_report_add' sample.id %}">Update</a></td>
                 </tr>
             {% endfor %}
         </table>
-        <!-- <form method="POST">
-            {% csrf_token %}
-            <fieldset class='form-group'>
-                <legend class='border-bottom mb-4'>Update Report</legend>
-                {{ form|crispy }}
-                <div class='form-group'>
-                    <button class='btn btn-outline-info' type='submit'>Submit</button>
-                </div>
-            </fieldset>
-        </form> -->
     </div>
 {% endblock content %}

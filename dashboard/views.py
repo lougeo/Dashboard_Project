@@ -86,16 +86,18 @@ def new_report(request):
         if form.is_valid():
             rtype = form.cleaned_data.get('report_type')
             if rtype == '1':
-                return redirect('new_report_add')
+                return redirect('new_report_concrete')
+            elif rtype == '2':
+                return redirect('new_report_sieve')
     else:
         form = ReportTypeForm()
     return render(request, 'dashboard/new_report.html', {'form': form})
 
 @login_required
 @user_passes_test(is_employee)
-def new_report_add(request):
+def new_report_concrete(request):
     if request.method == 'POST':
-        form = ReportForm(request.POST)
+        form = ConcreteReportForm(request.POST)
         if form.is_valid():
             # Report
             new_report = form.save()
@@ -116,23 +118,30 @@ def new_report_add(request):
             messages.success(request, f'Report Created for {name}')
             return redirect('new_report')
     else:
-        form = ReportForm()
-    return render(request, 'dashboard/new_report.html', {'form': form})
+        form = ConcreteReportForm()
+    return render(request, 'dashboard/new_report_concrete.html', {'form': form})
+
+@login_required
+@user_passes_test(is_employee)
+def new_report_sieve(request):
+    if request.method == 'POST':
+        form = SieveReportForm(request.POST)
+        if form.is_valid():
+
+            messages.success(request, f'Report Created for')
+            return redirect('new_report')
+    else:
+        form = SieveReportForm()
+    return render(request, 'dashboard/new_report_sieve.html', {'form': form})
 
 
 # Update Report Page
+# Change the name of this view, and the following to something less ambiguous
 @login_required
 @user_passes_test(is_employee)
 def update_report(request):
-    if request.method == 'POST':
-        form = ReportSelectorForm(request.POST)
-        if form.is_valid():
-            report = form.cleaned_data.get('selected_report')
-            return redirect('update_report_add', pk=report.pk)
-    else:
-        form = ReportSelectorForm()
-        reports = ConcreteSample.objects.filter(break_day=timezone.now().date()).filter(status=0)
-    return render(request, 'dashboard/update_report.html', {'form': form, 'reports':reports})
+    samples = ConcreteSample.objects.filter(break_day=timezone.now().date()).filter(status=0)
+    return render(request, 'dashboard/update_report.html', {'samples':samples})
 
 @login_required
 @user_passes_test(is_employee)

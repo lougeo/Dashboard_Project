@@ -17,73 +17,95 @@
     {% endif %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">EXL Engineering</a>
+                <a class="navbar-brand" href="{% url 'home' %}">EXL Engineering</a>
             </div>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    {% if request.user.groups.first.name == "Manager" %}
+                {% if request.user.groups.first.name == "Manager" %}
+                    <ul class='nav navbar-nav'>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">LAB</a>
+                            <ul class="dropdown-menu bg-dark">
+                                <li>
+                                    <a class="nav-link" href="{% url 'update_report' %}">Today's Samples</a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="{% url 'report_approval' %}">Approvals</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">NEW</a>
+                            <ul class="dropdown-menu bg-dark">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'new_report' %}">New Report</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'new_project' %}">New Project</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'register' %}">New User</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">ANALYTICS</a>
+                            <ul class="dropdown-menu bg-dark">
+                                <li class="nav-item active">
+                                    <a class="nav-link" href="{% url 'home' %}">Dashboard</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav ml-auto">
                         <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
+                            <a class="nav-link" href="{% url 'profile' %}">{{ request.user.username }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    </ul>
+                {% elif request.user.groups.first.name == "Technician" %}
+                    <ul class='nav navbar-nav'>
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'home' %}">Dashboard</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'new_report' %}">New Report</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'report_approval' %}">Approvals</a>
+                            <a class="nav-link" href="{% url 'update_report' %}">Today's Samples</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'update_report' %}">Update Report</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'new_project' %}">New Project</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">Add User</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                        </li>
-                    {% elif request.user.groups.first.name == "Technician" %}
+                    </ul>
+                    <ul class="nav navbar-nav ml-auto">
                         <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'new_report' %}">New Report</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'update_report' %}">Update Report</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                            <a class="nav-link" href="{% url 'profile' %}">{{ request.user.username }}</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                         </li>
-                    {% else %}
+                    </ul>
+                {% else %}
+                    <ul class='nav navbar-nav'>
                         <li class="nav-item active">
-                            <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
+                            <a class="nav-link" href="{% url 'home' %}">Dashboard</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                    </ul>
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'profile' %}">{{ request.user.username }}</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                         </li>
-                    {% endif %}
-                </ul>
+                    </ul>
+                {% endif %}
             </div>
-            <ul class="navbar-header navbar-nav navbar-right">
-                <li class="navbar-brand">{{ request.user.username }}</li>
-            </ul>
         </div>
     </nav>
     {% if messages %}
