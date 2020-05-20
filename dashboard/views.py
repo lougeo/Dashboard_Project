@@ -22,7 +22,6 @@ def is_manager(user):
 
 # Dasboard page
 @login_required
-#@user_passes_test(is_employee, redirect_field_name='client_home')
 def home(request):
     if is_employee(request.user):
         reports = ConcreteReport.objects.all().order_by('status', '-date_cast')
@@ -287,3 +286,14 @@ def DownloadPDF(request, pk):
     content = f"attachment; filename={filename}"
     response['Content-Disposition'] = content
     return response
+
+
+
+############################# AJAX VIEWS ####################################
+
+@login_required
+def load_projects(request):
+    client_id = request.GET.get('client')
+    print(client_id)
+    projects = Project.objects.filter(company__id=client_id)
+    return render(request, 'dashboard/project_dropdown_list.html', {'projects':projects})

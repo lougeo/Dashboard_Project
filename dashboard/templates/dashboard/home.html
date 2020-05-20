@@ -64,17 +64,17 @@
         <div class='col-md'>
             <table class='table table-sm'>
                 {% if request.user.groups.first.name == "Manager" or request.user.groups.first.name == "Technician" %}
-                    <!-- <tr>
+                    <tr>
                         <th>Client</th>
                         <th>Project</th>
                         <th>ID</th>
-                        <th>Date Cast</th>
+                        <th>Date Sampled</th>
                         <th>Date Received</th>
                         <th>Status</th>
                         <th>View</th>
                         <th>Update</th>
                     </tr>
-                    {% for report in reports %}
+                    <!-- {% for report in reports %}
                         <tr>
                             <td>{{ report.project_name.company }}</td>
                             <td>{{ report.project_name }}</td>

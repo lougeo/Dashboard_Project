@@ -11,18 +11,22 @@ class ReportTypeForm(forms.Form):
 
 # This needs to be modified to take an AJAX request to filter the projects specific to the client
 class ConcreteReportForm(ModelForm):
-    project_client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
+    client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
     #project_name = forms.ModelChoiceField(queryset=Project.objects.filter(company__company=project_client))
 
     class Meta:
         model = ConcreteReport
-        fields = ['project_client',
+        fields = ['client',
                   'project_name', 
                   'date_received', 
                   'date_cast', 
                   'num_samples', 
                   'break_days', 
                   'technician']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['project_name'].queryset = ConcreteReport.objects.none()
 
 class SieveReportForm(ModelForm):
     project_client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))

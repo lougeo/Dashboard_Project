@@ -14,4 +14,6 @@ urlpatterns = [
     path('view-pdf/<int:pk>/', views.ViewPDF, name='ViewPDF'),
     path('download-pdf/<int:pk>/', views.DownloadPDF, name='DownloadPDF'),
 
+    path('ajax/load-projects/', views.load_projects, name='ajax_load_projects'),
+
 ]

@@ -59,10 +59,6 @@ class ConcreteSample(models.Model):
     def __str__(self):
         return f'{self.id}, {self.status}'
 
-    def save(self, *args, **kwargs):
-        super(ConcreteSample, self).save(*args, **kwargs)
-        print('Did this attribute update? (attr):', self.status)
-        print('Save method executed!')
 
 class SieveReport(models.Model):
     # 0:incomplete 1:complete
