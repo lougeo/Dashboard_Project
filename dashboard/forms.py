@@ -9,10 +9,9 @@ class ReportTypeForm(forms.Form):
     report_type = forms.ChoiceField(choices=[(1, 'Concrete'), (2, 'Sieve')])
 
 
-# This needs to be modified to take an AJAX request to filter the projects specific to the client
-class ConcreteReportForm(ModelForm):
+# Only use this form for new reports, won't work with updating existing reports
+class NewConcreteReportForm(ModelForm):
     client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
-    #project_name = forms.ModelChoiceField(queryset=Project.objects.filter(company__company=project_client))
 
     class Meta:
         model = ConcreteReport
@@ -20,38 +19,58 @@ class ConcreteReportForm(ModelForm):
                   'project_name', 
                   'date_received', 
                   'date_cast', 
-                  'num_samples', 
-                  'break_days', 
                   'technician']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['project_name'].queryset = ConcreteReport.objects.none()
+        self.fields['project_name'].queryset = Project.objects.none()
 
-class SieveReportForm(ModelForm):
-    project_client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
-    #project_name = forms.ModelChoiceField(queryset=Project.objects.filter(company__company=project_client))
+        if 'client' in self.data:
+            try:
+                client_id = int(self.data.get('client'))
+                self.fields['project_name'].queryset = Project.objects.filter(company__id=client_id)
+            except (ValueError, TypeError):
+                pass # invalid input, pass and fall back to empty queryset
+
+# Only use this form for new reports, won't work with updating existing reports
+class NewSieveReportForm(ModelForm):
+    client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
 
     class Meta:
         model = SieveReport
-        fields = ['project_client',
+        fields = ['client',
                   'project_name', 
                   'date_received', 
                   'date_sampled', 
-                  'num_samples',  
-                  'technician']
+                  'technician',
+                  'agg_type']
+    
+    # This is to limit the project queryset to those of the selected client.
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['project_name'].queryset = Project.objects.none()
 
-# Same thing as ^. Needs some JS to dynamically alter the options available for project based on selection of client
-# Maybe change widget on the FK fields to something which the instance will show
-class FullReportUpdateForm(ModelForm):
+        if 'client' in self.data:
+            try:
+                client_id = int(self.data.get('client'))
+                self.fields['project_name'].queryset = Project.objects.filter(company__id=client_id)
+            except (ValueError, TypeError):
+                pass # invalid input, pass and fall back to empty queryset
+
+class FullConcreteReportUpdateForm(ModelForm):
     class Meta:
         model = ConcreteReport
         exclude = ['num_samples', 'status', 'break_days']
+    
+    # This sets the project querset to only allow selection of that clients projects
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['project_name'].queryset = self.instance.project_name.company.project_set.order_by('name')
 
 class NewSampleForm(ModelForm):
     class Meta:
         model = ConcreteSample
-        fields = ['report', 'cast_day', 'break_day']
+        fields = ['report', 'cast_date', 'days_break']
 
 class UpdateSampleForm(ModelForm):
     confirm = forms.BooleanField(initial=False, required=False, widget=forms.HiddenInput)
@@ -90,7 +109,13 @@ class SampleSelectorForm(forms.Form):
 
 #################### FORMSETS #############################
 
-SampleFormSet = inlineformset_factory(ConcreteReport, 
-                                      ConcreteSample, 
-                                      fields=('break_day', 'width', 'height', 'weight', 'strength', 'result'),
-                                      extra=0)
+ConcreteSampleFormSet = inlineformset_factory(ConcreteReport, 
+                                              ConcreteSample, 
+                                              fields=('days_break', 'width', 'height', 'weight', 'strength', 'result'),
+                                              extra=0)
+
+NewConcreteSampleFormSet = inlineformset_factory(ConcreteReport, 
+                                                 ConcreteSample, 
+                                                 fields=('days_break',),
+                                                 widgets={'cast_date':forms.HiddenInput(), 'break_date':forms.HiddenInput()}, 
+                                                 extra=3)

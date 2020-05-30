@@ -30,7 +30,7 @@
                         <h5 class='card-title'>{{ card_titles.2 }}</h5>
                     </div>
                     <div class='card-body'>
-                        <h3 class='card-title'>{{ card_2 }}</h3>
+                        <h3 class='card-title'>{{ card_3 }}</h3>
                     </div>
                 </div>
             </div>
@@ -74,25 +74,7 @@
                         <th>View</th>
                         <th>Update</th>
                     </tr>
-                    <!-- {% for report in reports %}
-                        <tr>
-                            <td>{{ report.project_name.company }}</td>
-                            <td>{{ report.project_name }}</td>
-                            <td>{{ report.id }}</td>
-                            <td>{{ report.date_cast }}</td>
-                            <td>{{ report.date_received }}</td>
-                            <td>
-                                {% if report.status == 0 %}
-                                    Incomplete
-                                {% else %}
-                                    Complete
-                                {% endif %}
-                            </td>
-                            <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
-                            <td><a class='btn btn-sm btn-warning' href="{% url 'cr_update' report.id %}">Update</a></td>
-                        </tr>
-                    {% endfor %} -->
-                    {% for report in myFilter.qs %}
+                    {% for report in page_obj %}
                         <tr>
                             <td>{{ report.project_name.company }}</td>
                             <td>{{ report.project_name }}</td>
