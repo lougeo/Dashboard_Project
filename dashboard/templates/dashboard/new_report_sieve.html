@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class='container'>
-        <form method="POST" id="reportForm" data-projects-url="{% url 'ajax_load_projects' %}">
+        <form method="POST" id="reportForm" data-projects-url="{% url 'ajax_load_projects' %}" data-plot-url="{% url 'ajax_sieve_plot_generator' %}">
             {% csrf_token %}
             <fieldset class='form-group'>
                 <div class='row'>
@@ -93,6 +93,12 @@
                         <input class="btn btn-outline-danger" type="button" value="Remove" id="remove_more">
                     </div>
                 </div>
+                <div id='plot_area'></div>
+                <div class='row'>
+                    <div class='col text-right'>
+                        <input class="btn btn-outline-info" type="button" value="Generate Plot" id="generate_plot">
+                    </div>
+                </div>
                 <div class='row'>
                     <div class='col text-right'>
                         <button class='btn btn-outline-success' type='submit'>Submit</button>
@@ -129,6 +135,34 @@
             var num_forms = $('#id_form2-TOTAL_FORMS').val();
             $('#form_set').children('div').eq(-1).remove();
             $('#id_form2-TOTAL_FORMS').val(parseInt(num_forms) - 1);
+        });
+    </script>
+    <script>
+        $('#generate_plot').click(function() {
+            var url = $("#reportForm").attr("data-plot-url");
+            var plot_data = [
+                {value: $('#id_form2-0-mm_120').val()},
+                {value: $('#id_form2-0-mm_80').val()},
+                {value: $('#id_form2-0-mm_40').val()},
+                {value: $('#id_form2-0-mm_20').val()},
+                {value: $('#id_form2-0-mm_10').val()},
+                {value: $('#id_form2-0-mm_5').val()},
+                {value: $('#id_form2-0-mm_1').val()},
+                {value: $('#id_form2-0-mm_05').val()},
+                {value: $('#id_form2-0-mm_025').val()}];
+            console.log(url);
+            console.log(plot_data);
+            console.log('suck me');
+            $.ajax({
+                url: url,
+                data: {
+                    'plot_data': plot_data
+                },
+            success: function(data) {
+                $("#plot_area").html(data);
+            }
+            });
+            console.log('sent ajax');
         });
     </script>
 {% endblock content %}

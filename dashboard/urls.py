@@ -15,5 +15,5 @@ urlpatterns = [
     path('download-pdf/<int:pk>/', views.DownloadPDF, name='DownloadPDF'),
 
     path('ajax/load-projects/', views.load_projects, name='ajax_load_projects'),
-
+    path('ajax/sieve-plot-generator/', views.SievePlotGenerator, name='ajax_sieve_plot_generator'),
 ]

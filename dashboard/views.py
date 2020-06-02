@@ -137,12 +137,22 @@ def new_report_concrete(request):
 @login_required
 @user_passes_test(is_employee)
 def new_report_sieve(request):
+
     if request.method == 'POST':
+
         form = NewSieveReportForm(request.POST)
+
         if form.is_valid():
 
-            messages.success(request, f'Report Created for')
-            return redirect('new_report')
+            new_report = form.save(commit=False)
+            date_sampled = form.cleaned_data.get('date_sampled')
+            sample_form = NewSieveSampleFormSet(request.POST, instance=new_report, prefix='form2')
+
+            if sample_form.is_valid():
+
+
+                messages.success(request, f'Report Created for')
+                return redirect('new_report')
 
     form = NewSieveReportForm()
     sample_form = NewSieveSampleFormSet(prefix='form2')
@@ -292,6 +302,7 @@ def cr_update(request, pk):
 
     return render(request, 'dashboard/update_full_cr.html', context)
 
+############################## HELPER VIEWS ######################################
 
 # View Report PDF
 @login_required 
@@ -313,6 +324,17 @@ def DownloadPDF(request, pk):
     response['Content-Disposition'] = content
     return response
 
+# Generate Sieve Plot
+@login_required
+def SievePlotGenerator(request):
+
+    data = []
+    for i in request.GET:
+        data.append(float(request.GET.get(i)))
+
+    plot_data = plot_sieve_report(data)
+
+    return render(request, 'dashboard/sieve_plot_insert.html', {'plot_data':plot_data})
 
 
 ############################# AJAX VIEWS ####################################

@@ -1,10 +1,12 @@
 import os
 from django.conf import settings
 from django.template import Context
+import base64
 from io import BytesIO
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+from matplotlib.figure import Figure
 
 def link_callback(uri, rel):
 
@@ -36,3 +38,15 @@ def render_to_pdf(template_src, context_dict={}):
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
+
+def plot_sieve_report(data):
+    # Generate plot
+    fig = Figure()
+    ax = fig.subplots()
+    ax.plot(data)
+    # Save it to a temporary buffer
+    buf = BytesIO()
+    fig.savefig(buf, format='png')
+    # Embed the result in the html output
+    plot_data = base64.b64encode(buf.getbuffer()).decode("ascii")
+    return plot_data
