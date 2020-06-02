@@ -7,7 +7,7 @@
             <fieldset class='form-group'>
                 <div class='row'>
                     <div class='col'>
-                        <legend class='border-bottom mb-4'>New Report</legend>
+                        <legend class='border-bottom mb-4'>New Concrete Report</legend>
                         {{ form|crispy }}
                     </div>
                     <div class='col'>
@@ -18,11 +18,6 @@
                                 {{ sample_form.empty_form.days_break|as_crispy_field }}
                             </div>
                             {% for sample in sample_form %}
-                                {% for hidden in sample.hidden_fields %}
-                                    {{ sample.id }}
-                                    {{ sample.cast_date }}
-                                    {{ sample.break_date }}
-                                {% endfor %}
                                 {{ sample.days_break|as_crispy_field }}
                             {% endfor %}
                         </div>

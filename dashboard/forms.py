@@ -111,11 +111,15 @@ class SampleSelectorForm(forms.Form):
 
 ConcreteSampleFormSet = inlineformset_factory(ConcreteReport, 
                                               ConcreteSample, 
-                                              fields=('days_break', 'width', 'height', 'weight', 'strength', 'result'),
+                                              fields=('days_break', 'break_date', 'width', 'height', 'weight', 'strength', 'result'),
                                               extra=0)
 
 NewConcreteSampleFormSet = inlineformset_factory(ConcreteReport, 
                                                  ConcreteSample, 
-                                                 fields=('days_break',),
-                                                 widgets={'cast_date':forms.HiddenInput(), 'break_date':forms.HiddenInput()}, 
+                                                 fields=['days_break'],
                                                  extra=3)
+
+NewSieveSampleFormSet = inlineformset_factory(SieveReport, 
+                                              SieveSample, 
+                                              exclude=['report', 'status', 'sample_day', 'process_day', 'moisture_content', 'result'],
+                                              extra=1)

@@ -28,7 +28,6 @@
                     {% for hidden in report_form.hidden_fields %}
                         {{ report_form.id }}
                         {{ report_form.status }}
-                        {{ report_form.break_days }}
                     {% endfor %}
                     <p>
                         {{ instance.project_name.company }} <br>
@@ -49,44 +48,98 @@
                 </div>
             </div>
             <hr>
-            {{ sample_forms.management_form }}
-            {% for sample in sample_forms %}
-                {% for hidden in sample.hidden_fields %}
-                    {{ sample.id }}
-                {% endfor %}
+            <div class='row'>
+                <div id='form_set'>
+                    {{ sample_forms.management_form }}
+                    <div id="empty_form" style="display:none">
+                        <div class=row>
+                            <div class='col'>
+                                <p>
+                                    {{ sample_forms.empty_form.days_break|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample_forms.empty_form.break_date|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample_forms.empty_form.width|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample_forms.empty_form.height|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample_forms.empty_form.weight|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample_forms.empty_form.strength|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample_forms.empty_form.result|as_crispy_field }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% for sample in sample_forms %}
+                        {% for hidden in sample.hidden_fields %}
+                            {{ sample.id }}
+                        {% endfor %}
+                        <div class=row>
+                            <div class='col'>
+                                <p>
+                                    {{ sample.days_break|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample.break_date|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample.width|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample.height|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample.weight|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample.strength|as_crispy_field }}
+                                </p>
+                            </div>
+                            <div class='col'>
+                                <p>
+                                    {{ sample.result|as_crispy_field }}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
                 <div class='row'>
-                    <div class='col'>
-                        <p>
-                            {{ sample.break_day|as_crispy_field }}
-                        </p>
-                    </div>
-                    <div class='col'>
-                        <p>
-                            {{ sample.width|as_crispy_field }}
-                        </p>
-                    </div>
-                    <div class='col'>
-                        <p>
-                            {{ sample.height|as_crispy_field }}
-                        </p>
-                    </div>
-                    <div class='col'>
-                        <p>
-                            {{ sample.weight|as_crispy_field }}
-                        </p>
-                    </div>
-                    <div class='col'>
-                        <p>
-                            {{ sample.strength|as_crispy_field }}
-                        </p>
-                    </div>
-                    <div class='col'>
-                        <p>
-                            {{ sample.result|as_crispy_field }}
-                        </p>
+                    <div class='col text-right'>
+                        <input class="btn btn-outline-info" type="button" value="Add" id="add_more">
+                        <input class="btn btn-outline-danger" type="button" value="Remove" id="remove_more">
                     </div>
                 </div>
-            {% endfor %}
+            </div>
             <hr>
             <div class='row'>
                 <div class='col'>
@@ -120,7 +173,7 @@
         <div class='container  p-3 my-3'>
             <div class='row'>
                 <div class='col' >
-                    <button class='btn btn-md btn-danger' type='submit' name='delete'>Delete<button>
+                    <button class='btn btn-md btn-danger' type='submit' name='delete'>Delete</button>
                 </div>
                 <div class='col text-right'>
                     <button class='btn btn-md btn-success' type='submit' name='update'>Submit</button>        
@@ -128,4 +181,19 @@
             </div>
         </div>
     </form>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script>
+        $('#add_more').click(function() {
+            var num_forms = $('#id_form2-TOTAL_FORMS').val();
+            $('#form_set').append($('#empty_form').html().replace(/__prefix__/g, num_forms));
+            $('#id_form2-TOTAL_FORMS').val(parseInt(num_forms) + 1);
+        });
+    </script>
+    <script>
+        $('#remove_more').click(function() {
+            var num_forms = $('#id_form2-TOTAL_FORMS').val();
+            $('#form_set').children('div').eq(-1).remove();
+            $('#id_form2-TOTAL_FORMS').val(parseInt(num_forms) - 1);
+        });
+    </script>
 {% endblock content %}

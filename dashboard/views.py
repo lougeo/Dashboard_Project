@@ -143,9 +143,16 @@ def new_report_sieve(request):
 
             messages.success(request, f'Report Created for')
             return redirect('new_report')
-    else:
-        form = NewSieveReportForm()
-    return render(request, 'dashboard/new_report_sieve.html', {'form': form})
+
+    form = NewSieveReportForm()
+    sample_form = NewSieveSampleFormSet(prefix='form2')
+
+    context = {
+        'form':form,
+        'sample_form':sample_form
+    }
+    
+    return render(request, 'dashboard/new_report_sieve.html', context)
 
 
 # Update Report Page

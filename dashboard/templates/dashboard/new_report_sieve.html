@@ -5,10 +5,98 @@
         <form method="POST" id="reportForm" data-projects-url="{% url 'ajax_load_projects' %}">
             {% csrf_token %}
             <fieldset class='form-group'>
-                <legend class='border-bottom mb-4'>New Report</legend>
-                {{ form|crispy }}
-                <div class='form-group'>
-                    <button class='btn btn-outline-info' type='submit'>Submit</button>
+                <div class='row'>
+                    <div class='col'>
+                        <legend class='border-bottom mb-4'>New Sieve Report</legend>
+                        {{ form|crispy }}
+                    </div>
+                    <div class='col'>
+                        <div class = 'row' id='form_set'>
+                            <legend class='border-bottom mb-4'>Add Samples</legend>
+                            {{ sample_form.management_form }}
+                            <div id="empty_form" style="display:none">
+                                <div class='col'>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.wet_weight|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.dry_weight|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.mm_120|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.mm_80|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.mm_40|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.mm_20|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.mm_10|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.mm_5|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.mm_1|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.mm_05|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample_form.empty_form.mm_025|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% for sample in sample_form %}
+                                <div class='col'>
+                                    <div class='row'>
+                                        {{ sample.wet_weight|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample.dry_weight|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample.mm_120|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample.mm_80|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample.mm_40|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample.mm_20|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample.mm_10|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample.mm_5|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample.mm_1|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample.mm_05|as_crispy_field }}
+                                    </div>
+                                    <div class='row'>
+                                        {{ sample.mm_025|as_crispy_field }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <input class="btn btn-outline-info" type="button" value="Add" id="add_more">
+                        <input class="btn btn-outline-danger" type="button" value="Remove" id="remove_more">
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col text-right'>
+                        <button class='btn btn-outline-success' type='submit'>Submit</button>
+                    </div>
                 </div>
             </fieldset>
         </form>
@@ -19,14 +107,28 @@
             var url = $("#reportForm").attr("data-projects-url");
             var clientId = $(this).val();
             $.ajax({
-                url: url, 
+                url: url,
                 data: {
                     'client': clientId
                 },
-            success: function (data) {
+            success: function(data) {
                 $("#id_project_name").html(data);
             }
             });
+        });
+    </script>
+    <script>
+        $('#add_more').click(function() {
+            var num_forms = $('#id_form2-TOTAL_FORMS').val();
+            $('#form_set').append($('#empty_form').html().replace(/__prefix__/g, num_forms));
+            $('#id_form2-TOTAL_FORMS').val(parseInt(num_forms) + 1);
+        });
+    </script>
+    <script>
+        $('#remove_more').click(function() {
+            var num_forms = $('#id_form2-TOTAL_FORMS').val();
+            $('#form_set').children('div').eq(-1).remove();
+            $('#id_form2-TOTAL_FORMS').val(parseInt(num_forms) - 1);
         });
     </script>
 {% endblock content %}

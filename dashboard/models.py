@@ -83,6 +83,20 @@ class SieveSample(models.Model):
     process_day = models.DateField()
 
     # Metrics
+    wet_weight = models.DecimalField(max_digits=10, 
+                                     decimal_places=2, 
+                                     null=True, 
+                                     blank=True)
+    dry_weight = models.DecimalField(max_digits=10, 
+                                     decimal_places=2, 
+                                     null=True, 
+                                     blank=True)
+    moisture_content = models.DecimalField(max_digits=10, 
+                                           decimal_places=2, 
+                                           null=True, 
+                                           blank=True)
+
+                                           
     mm_120 = models.DecimalField(max_digits=10, 
                                  decimal_places=2, 
                                  null=True, 
