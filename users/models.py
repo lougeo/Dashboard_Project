@@ -17,13 +17,13 @@ class Profile(models.Model):
 
 
     def __str__(self):
-        return self.user.username
+        return f'{self.first_name} {self.last_name}'
 
 class Project(models.Model):
     company = models.ForeignKey(Profile, 
                                 on_delete=models.CASCADE, 
                                 null=True)
-    name = models.CharField(max_length=30, unique=True)
+    name = models.CharField("Project Name", max_length=30, unique=True)
     address = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     province = models.CharField(max_length=100)

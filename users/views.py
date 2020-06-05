@@ -23,7 +23,7 @@ def register(request):
             group.user_set.add(new_user)
 
             messages.success(request, f'Account created for {username}')
-            return redirect('profile_update', pk=pk)
+            return redirect('register')
     else:
         form = UserRegisterForm()
     return render(request, 'users/register.html', {'form':form})
@@ -67,7 +67,7 @@ def new_project(request):
             form.save()
             name = form.cleaned_data.get('name')
             company = form.cleaned_data.get('company')
-            messages.success(request, f'Project {name} Created for {company}')
+            messages.success(request, f'Project: {name} Created for: {company}')
             return redirect('new_report')
     else:
         form = NewProjectForm()

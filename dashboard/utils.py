@@ -8,6 +8,16 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from matplotlib.figure import Figure
 
+
+def is_employee(user):
+    if user.groups.filter(name="Manager").exists() | user.groups.filter(name="Technician").exists():
+        return True
+    else:
+        return False
+
+def is_manager(user):
+    return user.groups.filter(name="Manager").exists()
+
 def link_callback(uri, rel):
 
     sUrl = settings.STATIC_URL
@@ -44,6 +54,9 @@ def plot_sieve_report(data):
     fig = Figure()
     ax = fig.subplots()
     ax.plot(data)
+    ax.set_title("Sieve Analysis")
+    ax.set_ylabel("Percent Passing")
+    ax.set_xlabel("Sieve Number")
     # Save it to a temporary buffer
     buf = BytesIO()
     fig.savefig(buf, format='png')

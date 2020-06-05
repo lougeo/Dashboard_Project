@@ -93,7 +93,7 @@
                         <input class="btn btn-outline-danger" type="button" value="Remove" id="remove_more">
                     </div>
                 </div>
-                <div id='plot_area'></div>
+                <div class='row'><div class='col' id='plot_area'></div></div>
                 <div class='row'>
                     <div class='col text-right'>
                         <input class="btn btn-outline-info" type="button" value="Generate Plot" id="generate_plot">
@@ -150,9 +150,6 @@
                 {value: $('#id_form2-0-mm_1').val()},
                 {value: $('#id_form2-0-mm_05').val()},
                 {value: $('#id_form2-0-mm_025').val()}];
-            console.log(url);
-            console.log(plot_data);
-            console.log('suck me');
             $.ajax({
                 url: url,
                 data: {
@@ -162,7 +159,6 @@
                 $("#plot_area").html(data);
             }
             });
-            console.log('sent ajax');
         });
     </script>
 {% endblock content %}

@@ -6,19 +6,18 @@ from users.models import *
 
 # make a regular form for the report type which triggers a conditional to display the proper model form type
 class ReportTypeForm(forms.Form):
-    report_type = forms.ChoiceField(choices=[(1, 'Concrete'), (2, 'Sieve')])
-
+    name = forms.ModelChoiceField(queryset=ReportStandard.objects.all())
 
 # Only use this form for new reports, won't work with updating existing reports
 class NewConcreteReportForm(ModelForm):
     client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
 
     class Meta:
-        model = ConcreteReport
+        model = Report
         fields = ['client',
                   'project_name', 
                   'date_received', 
-                  'date_cast', 
+                  'date_sampled', 
                   'technician']
     
     def __init__(self, *args, **kwargs):
@@ -37,13 +36,12 @@ class NewSieveReportForm(ModelForm):
     client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
 
     class Meta:
-        model = SieveReport
+        model = Report
         fields = ['client',
                   'project_name', 
                   'date_received', 
                   'date_sampled', 
-                  'technician',
-                  'agg_type']
+                  'technician']
     
     # This is to limit the project queryset to those of the selected client.
     def __init__(self, *args, **kwargs):
@@ -59,8 +57,8 @@ class NewSieveReportForm(ModelForm):
 
 class FullConcreteReportUpdateForm(ModelForm):
     class Meta:
-        model = ConcreteReport
-        exclude = ['num_samples', 'status', 'break_days']
+        model = Report
+        exclude = ['status', 'report_type']
     
     # This sets the project querset to only allow selection of that clients projects
     def __init__(self, *args, **kwargs):
@@ -109,17 +107,17 @@ class SampleSelectorForm(forms.Form):
 
 #################### FORMSETS #############################
 
-ConcreteSampleFormSet = inlineformset_factory(ConcreteReport, 
+ConcreteSampleFormSet = inlineformset_factory(Report, 
                                               ConcreteSample, 
                                               fields=('days_break', 'break_date', 'width', 'height', 'weight', 'strength', 'result'),
                                               extra=0)
 
-NewConcreteSampleFormSet = inlineformset_factory(ConcreteReport, 
+NewConcreteSampleFormSet = inlineformset_factory(Report, 
                                                  ConcreteSample, 
                                                  fields=['days_break'],
                                                  extra=3)
 
-NewSieveSampleFormSet = inlineformset_factory(SieveReport, 
+NewSieveSampleFormSet = inlineformset_factory(Report, 
                                               SieveSample, 
                                               exclude=['report', 'status', 'sample_day', 'process_day', 'moisture_content', 'result'],
                                               extra=1)

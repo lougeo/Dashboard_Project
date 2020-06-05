@@ -1,0 +1,206 @@
+{% extends "dashboard/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class='container p-3 my-3 border'>
+        <div class='row border-bottom'>
+            <div class='col-8'>
+                <p>
+                    <img src="{% static 'images/logos/exl_logo.png' %}">
+                    <br>
+                </p>
+            </div>
+            <div class='col-4'>
+                <p>
+                    Dean Grimm<br>
+                    Unit 109 - 7198 Vantage Way<br>
+                    Delta, BC, V4G 1K7<br>
+                    <b>Phone:</b> 604-258-8113 <br>
+                    <b>Fax:</b> 604-948-9064 <br>
+                    <a href="#">dgrimm@exlengineering.com</a>
+                </p>
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col-6'>
+                <p>
+                    {{ instance.project_name.company }} <br>
+                </p>
+            </div>
+            <div class='col-3'>
+                <p>
+                    Project: <br>
+                    Technician: <br>
+                    Date Sampled: <br>
+                    Date Received: <br>
+                </p>
+            </div>
+            <div class='col-3'>
+                <p>
+                {{ instance.project_name }} <br>
+                {{ instance.technician }} <br>
+                {{ instance.date_sampled }} <br>
+                {{ instance.date_received }}
+                </p> 
+            </div>
+        </div>
+        <hr>
+        <div class='row'>
+            <div class='col'>
+                <p>
+                    Wet Weight
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Dry Weight
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Moisture Content
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Result
+                </p>
+            </div>
+        </div>
+        {% for sample in samples %}
+            <div class='row'>
+                <div class='col'>
+                    <p>
+                        {{ sample.wet_weight }}
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        {{ sample.dry_weight }}
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        {{ sample.moisture_content }}
+                    </p>
+                </div>
+                <div class='col'>
+                    <p>
+                        {% if sample.result == 0 %}
+                            Pass
+                        {% elif sample.result == 1 or sample.result == 2 %}
+                            Fail
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+        <hr>
+        <div class='row'>
+            <div class='col'>
+                <b>Screen Size (mm)</b>
+            </div>
+            <div class='col'>
+                <p>120</p>
+            </div>
+            <div class='col'>
+                <p>80</p>
+            </div>
+            <div class='col'>
+                <p>40</p>
+            </div>
+            <div class='col'>
+                <p>20</p>
+            </div>
+            <div class='col'>
+                <p>10</p>
+            </div>
+            <div class='col'>
+                <p>5</p>
+            </div>
+            <div class='col'>
+                <p>1</p>
+            </div>
+            <div class='col'>
+                <p>05</p>
+            </div>
+            <div class='col'>
+                <p>025</p>
+            </div>
+        </div>
+        {% for sample in samples %}
+            <div class='row'>
+                <div class='col'>
+                    <b>Amount Passed (g)</b>
+                </div>
+                <div class='col'>
+                    <p>{{ sample.mm_120 }}</p>
+                </div>
+                <div class='col'>
+                    <p>{{ sample.mm_80 }}</p>
+                </div>
+                <div class='col'>
+                    <p>{{ sample.mm_40 }}</p>
+                </div>
+                <div class='col'>
+                    <p>{{ sample.mm_20 }}</p>
+                </div>
+                <div class='col'>
+                    <p>{{ sample.mm_10 }}</p>
+                </div>
+                <div class='col'>
+                    <p>{{ sample.mm_5 }}</p>
+                </div>
+                <div class='col'>
+                    <p>{{ sample.mm_1 }}</p>
+                </div>
+                <div class='col'>
+                    <p>{{ sample.mm_05 }}</p>
+                </div>
+                <div class='col'>
+                    <p>{{ sample.mm_025 }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        <hr>
+        <div class='row'>
+            <div class='col-8'>
+                <img src="data:image/png;base64, {{ plot_data }}" alt="Sieve Plot">
+            </div>
+        </div>
+        <hr>
+        <div class='row'>
+            <div class='col'>
+                <p>
+                    Mix ID: <br>
+                    Temp (*C): <br>
+                    Supplier: <br>
+                    Storage type: 
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    CH420 <br>
+                    22 <br>
+                    LaFarge <br>
+                    Box 
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Approved By: <br> 
+                </p>
+            </div>
+            <div class='col'>
+                <p>
+                    Dean Grimm <br>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class='container  p-3 my-3'>
+        <a class='btn btn-md btn-info' href="{% url 'ViewPDF' instance.id %}">View PDF</a>
+        <a class='btn btn-md btn-success' href="{% url 'DownloadPDF' instance.id %}">Download PDF</a>
+    </div>
+
+{% endblock content %}

@@ -1,7 +1,7 @@
 from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
@@ -11,21 +11,13 @@ from .models import *
 from .filters import *
 from .utils import *
 
-def is_employee(user):
-    if user.groups.filter(name="Manager").exists() | user.groups.filter(name="Technician").exists():
-        return True
-    else:
-        return False
-
-def is_manager(user):
-    return user.groups.filter(name="Manager").exists()
 
 # Dasboard page
 @login_required
 def home(request):
     if is_employee(request.user):
         # if conditional to check if paginated, and to modify reports if so
-        reports = ConcreteReport.objects.all().order_by('status', '-date_cast', '-id')
+        reports = Report.objects.all().order_by('status', '-date_sampled', '-id')
         samples = ConcreteSample.objects.all()
 
         # Total in lab
@@ -39,7 +31,7 @@ def home(request):
 
     else:
         client = request.user.id
-        reports = ConcreteReport.objects.filter(project_name__company__user__id=client).order_by('status', '-date_cast')
+        reports = Report.objects.filter(project_name__company__user__id=client).order_by('status', '-date_sampled')
         samples = ConcreteSample.objects.filter(report__project_name__company__user__id=client)
 
         # Total in lab
@@ -84,18 +76,16 @@ def new_report(request):
     if request.method == 'POST':
         form = ReportTypeForm(request.POST)
         if form.is_valid():
-            rtype = form.cleaned_data.get('report_type')
-            if rtype == '1':
-                return redirect('new_report_concrete')
-            elif rtype == '2':
-                return redirect('new_report_sieve')
-    else:
-        form = ReportTypeForm()
+            report_type = form.cleaned_data.get('name')
+            report_type_name = str(report_type).lower()
+            return redirect(f'new_report_{report_type_name}', pk=report_type.id)
+    
+    form = ReportTypeForm()
     return render(request, 'dashboard/new_report.html', {'form': form})
 
 @login_required
 @user_passes_test(is_employee)
-def new_report_concrete(request):
+def new_report_concrete(request, pk):
 
     if request.method == 'POST':
         form = NewConcreteReportForm(request.POST)
@@ -104,25 +94,26 @@ def new_report_concrete(request):
 
             # Setting required variables 
             new_report = form.save(commit=False)
-            cast_date = form.cleaned_data.get('date_cast')
+            new_report.report_type = ReportStandard.objects.get(pk=pk)
+            cast_date = form.cleaned_data.get('date_sampled')
             sample_form = NewConcreteSampleFormSet(request.POST, instance=new_report, prefix='form2')
 
             if sample_form.is_valid():
-                if all(d.get('days_break') for d in sample_form.cleaned_data):
-                    new_report.save()
-                    # Loops through and sets the dates for each sample
-                    for sample in sample_form:
+
+                # Sets the cast, and break date for the sample if break day is entered
+                for sample in sample_form:
+                    if sample.cleaned_data.get('days_break') != None:
                         break_day = sample.cleaned_data.get('days_break')
                         sample_obj = sample.save(commit=False)
                         sample_obj.cast_date = cast_date
                         sample_obj.break_date = cast_date + timedelta(days=break_day)
+                    else:
+                        continue
+                new_report.save()
+                sample_form.save()
 
-                        sample_obj.save()
-
-                    messages.success(request, f'Report {new_report.id} Created for {new_report.project_name}')
-                    return redirect('new_report')
-                else:
-                    messages.warning(request, 'Samples Cannot be left blank')
+                messages.success(request, f'Report {new_report.id}, Created for {new_report.project_name}')
+                return redirect('new_report')
 
     # Not prefixing the first form because that messes with the AJAX/form submission
     form = NewConcreteReportForm()
@@ -136,7 +127,7 @@ def new_report_concrete(request):
 
 @login_required
 @user_passes_test(is_employee)
-def new_report_sieve(request):
+def new_report_sieve(request, pk):
 
     if request.method == 'POST':
 
@@ -145,13 +136,31 @@ def new_report_sieve(request):
         if form.is_valid():
 
             new_report = form.save(commit=False)
-            date_sampled = form.cleaned_data.get('date_sampled')
+            new_report.report_type = ReportStandard.objects.get(pk=pk)
             sample_form = NewSieveSampleFormSet(request.POST, instance=new_report, prefix='form2')
 
             if sample_form.is_valid():
+                
+                # THIS NEEDS TO BE UPGRADED
+                for sample in sample_form:
 
+                    wet_weight = sample.cleaned_data.get('wet_weight')
+                    dry_weight = sample.cleaned_data.get('dry_weight')
 
-                messages.success(request, f'Report Created for')
+                    if wet_weight != None and dry_weight != None:
+
+                        sample_obj = sample.save(commit=False)
+                        sample_obj.moisture_content = wet_weight - dry_weight
+                        # Add conditional setting result
+                        # Add conditional setting status based on Manager/Technician
+
+                    else:
+                        continue
+                
+                new_report.save()
+                sample_form.save()
+
+                messages.success(request, f'Report {new_report.id}, Created for {new_report.project_name}')
                 return redirect('new_report')
 
     form = NewSieveReportForm()
@@ -169,13 +178,13 @@ def new_report_sieve(request):
 # Change the name of this view, and the following to something less ambiguous
 @login_required
 @user_passes_test(is_employee)
-def update_report(request):
+def lab_update_sample_list(request):
     samples = ConcreteSample.objects.filter(break_date=timezone.now().date()).filter(status=0)
-    return render(request, 'dashboard/update_report.html', {'samples':samples})
+    return render(request, 'dashboard/lab_update_sample_list.html', {'samples':samples})
 
 @login_required
 @user_passes_test(is_employee)
-def update_report_add(request, pk):
+def lab_update_sample(request, pk):
     instance = ConcreteSample.objects.get(pk=pk)
 
     if request.method == 'POST':
@@ -193,11 +202,11 @@ def update_report_add(request, pk):
             instance.status = 1
             instance.save()
             messages.success(request, f'Report Updated for {instance}')
-            return redirect('update_report')
+            return redirect('lab_update_sample_list')
     else:
         form = UpdateSampleForm(instance=instance)
 
-    return render(request, 'dashboard/update_report_add.html', {'form': form, 'instance':instance})
+    return render(request, 'dashboard/lab_update_sample.html', {'form': form, 'instance':instance})
 
 
 @login_required
@@ -212,7 +221,7 @@ def report_approval(request):
             
             # Checks if there are any remaining samples and marks report complete if not
             if ConcreteSample.objects.filter(report=instance.report).filter(Q(status=0) | Q(status=1)).exists() == True:
-                main_report = ConcreteReport.objects.get(id=instance.report.id)
+                main_report = Report.objects.get(id=instance.report.id)
                 main_report.status = 1
                 main_report.save()
 
@@ -227,17 +236,41 @@ def report_approval(request):
 
 # View full concrete Report
 @login_required
-def cr_view(request, pk):
-    instance = ConcreteReport.objects.get(pk=pk)
-    samples = instance.samples.all()
-    return render(request, 'dashboard/view_cr.html', {'instance':instance, 'samples':samples})
+def view_report_full(request, pk):
+    instance = Report.objects.get(pk=pk)
+    report_type_name = str(instance.report_type).lower()
+    if report_type_name == 'concrete':
+        samples = instance.concrete_samples.all()
+        context = {'instance':instance, 'samples':samples}
+    elif report_type_name == 'sieve':
+        samples = instance.sieve_samples.all()
+        sample = instance.sieve_samples.first()
+        data = [
+            sample.mm_120,
+            sample.mm_80,
+            sample.mm_40,
+            sample.mm_20,
+            sample.mm_10,
+            sample.mm_5,
+            sample.mm_1,
+            sample.mm_05,
+            sample.mm_025]
+        plot_data = plot_sieve_report(data)
+        context = {
+            'instance':instance, 
+            'samples':samples,
+            'plot_data':plot_data}
+    else:
+        return HttpResponseNotFound('Report is incomplete')
+
+    return render(request, f'dashboard/view_report_full_{report_type_name}.html', context)
 
 # Update full concrete report
 @login_required
 @user_passes_test(is_employee)
-def cr_update(request, pk):
-    instance = ConcreteReport.objects.get(pk=pk)
-    samples = instance.samples.all()
+def update_report_full(request, pk):
+    instance = Report.objects.get(pk=pk)
+    samples = instance.concrete_samples.all()
 
     if request.method == 'POST':
 
@@ -300,23 +333,23 @@ def cr_update(request, pk):
         'sample_forms':sample_forms
         }
 
-    return render(request, 'dashboard/update_full_cr.html', context)
+    return render(request, 'dashboard/update_report_full.html', context)
 
 ############################## HELPER VIEWS ######################################
 
 # View Report PDF
 @login_required 
 def ViewPDF(request, pk):
-    instance = ConcreteReport.objects.get(pk=pk)
-    samples = instance.samples.all()
+    instance = Report.objects.get(pk=pk)
+    samples = instance.concrete_samples.all()
     pdf = render_to_pdf('dashboard/dl_cr.html', {'instance':instance, 'samples':samples})
     return HttpResponse(pdf, content_type='application/pdf')
 
 # Download Report PDF
 @login_required
 def DownloadPDF(request, pk):
-    instance = ConcreteReport.objects.get(pk=pk)
-    samples = instance.samples.all()
+    instance = Report.objects.get(pk=pk)
+    samples = instance.concrete_samples.all()
     pdf = render_to_pdf('dashboard/view_cr.html', {'instance':instance, 'samples':samples})
     response = HttpResponse(pdf, content_type='application/pdf')
     filename = f"Report_{instance.id}.pdf"
@@ -342,5 +375,8 @@ def SievePlotGenerator(request):
 @login_required
 def load_projects(request):
     client_id = request.GET.get('client')
-    projects = Project.objects.filter(company__id=client_id)
+    if client_id != '':
+        projects = Project.objects.filter(company__id=client_id)
+    else:
+        projects = Project.objects.none()
     return render(request, 'dashboard/project_dropdown_list.html', {'projects':projects})

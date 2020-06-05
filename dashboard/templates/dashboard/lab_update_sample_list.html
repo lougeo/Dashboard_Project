@@ -10,7 +10,7 @@
                 <th>Project</th>
                 <th>Project ID</th>
                 <th>Sample ID</th>
-                <th>Date Cast</th>
+                <th>Date Sampled</th>
                 <th>Action</th>
             </tr>
             {% for sample in samples %}
@@ -18,8 +18,8 @@
                     <td>{{ sample.report.project_name }}</td>
                     <td>{{ sample.report.id }}</td>
                     <td>{{ sample.id }}</td>
-                    <td>{{ sample.report.date_cast }}</td>
-                    <td><a class="btn btn-sm btn-info" href="{% url 'update_report_add' sample.id %}">Update</a></td>
+                    <td>{{ sample.report.date_sampled }}</td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'lab_update_sample' sample.id %}">Update</a></td>
                 </tr>
             {% endfor %}
         </table>

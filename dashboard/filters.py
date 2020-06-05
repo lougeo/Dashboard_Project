@@ -1,5 +1,5 @@
 import django_filters
-from .models import ConcreteReport
+from .models import Report
 from users.models import Project, Profile
 
 STATUS_CHOICES = ((0, 'Incomplete'), (1, 'Complete'))
@@ -34,5 +34,5 @@ class ReportFilter(django_filters.FilterSet):
                                                queryset=is_client)
     status = django_filters.ChoiceFilter(field_name='status', choices=STATUS_CHOICES)
     class Meta:
-        model = ConcreteReport
-        fields = ['client', 'project', 'status', 'date_cast']
+        model = Report
+        fields = ['client', 'project', 'report_type', 'status', 'date_sampled']

@@ -67,6 +67,7 @@
                     <tr>
                         <th>Client</th>
                         <th>Project</th>
+                        <th>Type</th>
                         <th>ID</th>
                         <th>Date Sampled</th>
                         <th>Date Received</th>
@@ -78,8 +79,9 @@
                         <tr>
                             <td>{{ report.project_name.company }}</td>
                             <td>{{ report.project_name }}</td>
+                            <td>{{ report.report_type }}</td>
                             <td>{{ report.id }}</td>
-                            <td>{{ report.date_cast }}</td>
+                            <td>{{ report.date_sampled }}</td>
                             <td>{{ report.date_received }}</td>
                             <td>
                                 {% if report.status == 0 %}
@@ -88,15 +90,16 @@
                                     Complete
                                 {% endif %}
                             </td>
-                            <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
-                            <td><a class='btn btn-sm btn-warning' href="{% url 'cr_update' report.id %}">Update</a></td>
+                            <td><a class='btn btn-sm btn-info' href="{% url 'view_report_full' report.id %}">View</a></td>
+                            <td><a class='btn btn-sm btn-warning' href="{% url 'update_report_full' report.id %}">Update</a></td>
                         </tr>
                     {% endfor %}
                 {% elif request.user.groups.first.name == "Client" %}
                     <tr>
                         <th>Project</th>
+                        <th>Type</th>
                         <th>ID</th>
-                        <th>Date Cast</th>
+                        <th>Date Sampled</th>
                         <th>Date Received</th>
                         <th>Status</th>
                         <th>View</th>
@@ -104,8 +107,9 @@
                     {% for report in myFilter.qs %}
                         <tr>
                             <td>{{ report.project_name }}</td>
+                            <td>{{ report.report_type }}</td>
                             <td>{{ report.id }}</td>
-                            <td>{{ report.date_cast }}</td>
+                            <td>{{ report.date_sampled }}</td>
                             <td>{{ report.date_received }}</td>
                             <td>
                                 {% if report.status == 0 %}
@@ -114,7 +118,7 @@
                                     Complete
                                 {% endif %}
                             </td>
-                            <td><a class='btn btn-sm btn-info' href="{% url 'cr_view' report.id %}">View</a></td>
+                            <td><a class='btn btn-sm btn-info' href="{% url 'view_report_full' report.id %}">View</a></td>
                         </tr>
                     {% endfor %}
                 {% endif %}
