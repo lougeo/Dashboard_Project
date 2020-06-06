@@ -12,12 +12,11 @@
             </div>
             <div class='col-4'>
                 <p>
-                    Dean Grimm<br>
-                    Unit 109 - 7198 Vantage Way<br>
-                    Delta, BC, V4G 1K7<br>
-                    <b>Phone:</b> 604-258-8113 <br>
-                    <b>Fax:</b> 604-948-9064 <br>
-                    <a href="#">dgrimm@exlengineering.com</a>
+                    {{ instance.project_name.office }} <br>
+                    {{ instance.project_name.office.address }} <br>
+                    {{ instance.project_name.office.city }}, {{ instance.project_name.office.province }}, {{ instance.project_name.office.country }} <br>
+                    {{ instance.project_name.office.phone }} <br>
+                    {{ instance.project_name.office.user.email }} <br>
                 </p>
             </div>
         </div>
@@ -25,6 +24,10 @@
             <div class='col-6'>
                 <p>
                     {{ instance.project_name.company }} <br>
+                    {{ instance.project_name.company.address }} <br>
+                    {{ instance.project_name.company.city }}, {{ instance.project_name.company.province }}, {{ instance.project_name.company.country }} <br>
+                    {{ instance.project_name.company.phone }} <br>
+                    {{ instance.project_name.company.user.email }} <br>
                 </p>
             </div>
             <div class='col-3'>
@@ -172,28 +175,10 @@
         <div class='row'>
             <div class='col'>
                 <p>
+                    <b>Other metadata such as:</b> <br>
                     Mix ID: <br>
-                    Temp (*C): <br>
                     Supplier: <br>
-                    Storage type: 
-                </p>
-            </div>
-            <div class='col'>
-                <p>
-                    CH420 <br>
-                    22 <br>
-                    LaFarge <br>
-                    Box 
-                </p>
-            </div>
-            <div class='col'>
-                <p>
-                    Approved By: <br> 
-                </p>
-            </div>
-            <div class='col'>
-                <p>
-                    Dean Grimm <br>
+                    ...
                 </p>
             </div>
         </div>

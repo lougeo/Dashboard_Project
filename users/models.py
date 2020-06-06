@@ -20,9 +20,14 @@ class Profile(models.Model):
         return f'{self.first_name} {self.last_name}'
 
 class Project(models.Model):
+    office = models.ForeignKey(Profile, 
+                               on_delete=models.CASCADE, 
+                               limit_choices_to=models.Q(user__groups__name='Manager'), 
+                               related_name='office_contact')
     company = models.ForeignKey(Profile, 
                                 on_delete=models.CASCADE, 
-                                null=True)
+                                limit_choices_to=models.Q(user__groups__name='Client'), 
+                                related_name='client_contact')
     name = models.CharField("Project Name", max_length=30, unique=True)
     address = models.CharField(max_length=100)
     city = models.CharField(max_length=100)

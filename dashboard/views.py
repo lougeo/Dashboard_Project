@@ -341,8 +341,35 @@ def update_report_full(request, pk):
 @login_required 
 def ViewPDF(request, pk):
     instance = Report.objects.get(pk=pk)
-    samples = instance.concrete_samples.all()
-    pdf = render_to_pdf('dashboard/dl_cr.html', {'instance':instance, 'samples':samples})
+    report_type_name = str(instance.report_type).lower()
+
+    if report_type_name == 'concrete':
+        samples = instance.concrete_samples.all()
+        context = {
+            'instance':instance, 
+            'samples':samples
+        }
+
+    elif report_type_name == 'sieve':
+        samples = instance.sieve_samples.all()
+        sample = instance.sieve_samples.first()
+        data = [
+            sample.mm_120,
+            sample.mm_80,
+            sample.mm_40,
+            sample.mm_20,
+            sample.mm_10,
+            sample.mm_5,
+            sample.mm_1,
+            sample.mm_05,
+            sample.mm_025]
+        plot_data = plot_sieve_report(data)
+        context = {
+            'instance':instance,
+            'samples':samples,
+            'plot_data':plot_data
+        }
+    pdf = render_to_pdf(f'dashboard/pdf_{report_type_name}.html', context)
     return HttpResponse(pdf, content_type='application/pdf')
 
 # Download Report PDF

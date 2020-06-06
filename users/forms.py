@@ -48,8 +48,6 @@ class ProfileForm(ModelForm):
         exclude = ['user']
 
 class NewProjectForm(ModelForm):
-    company = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'), 
-                                     required=True)
     PROVINCE_CHOICES = [('BC', 'British Colombia'),
                         ('AB', 'Alberta'),
                         ('SK', 'Saskatchewan'),

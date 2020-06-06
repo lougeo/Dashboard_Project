@@ -17,7 +17,9 @@ class Report(models.Model):
     # Need an ID tag that counts starting at 1 for each project
     report_type = models.ForeignKey(ReportStandard, on_delete=models.CASCADE)
     project_name = models.ForeignKey(Project, on_delete=models.CASCADE)
-    technician = models.ForeignKey(User, on_delete=models.CASCADE, null=True, limit_choices_to={'groups__name':'Manager', 'groups__name':'Technician'}) # Figure out why it wont let me include both
+    technician = models.ForeignKey(User, 
+                                   on_delete=models.CASCADE, 
+                                   limit_choices_to=models.Q(groups__name='Manager') | models.Q(groups__name='Technician'))
     date_received = models.DateField(default=timezone.now)
     date_sampled = models.DateField(default=timezone.now) 
 

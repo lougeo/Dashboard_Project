@@ -59,12 +59,11 @@
                 </td>
                 <td style='text-align: right;' colspan="4">
                     <p>
-                        Dean Grimm<br>
-                        Unit 109 - 7198 Vantage Way<br>
-                        Delta, BC, V4G 1K7<br>
-                        <b>Phone:</b> 604-258-8113 <br>
-                        <b>Fax:</b> 604-948-9064 <br>
-                        <a href="#">dgrimm@exlengineering.com</a>
+                        {{ instance.project_name.office }} <br>
+                        {{ instance.project_name.office.address }} <br>
+                        {{ instance.project_name.office.city }}, {{ instance.project_name.office.province }}, {{ instance.project_name.office.country }} <br>
+                        {{ instance.project_name.office.phone }} <br>
+                        {{ instance.project_name.office.user.email }} <br>
                     </p>
                 </td>
             </tr>
@@ -72,6 +71,10 @@
                 <td colspan="4">
                     <p>
                         {{ instance.project_name.company }} <br>
+                        {{ instance.project_name.company.address }} <br>
+                        {{ instance.project_name.company.city }}, {{ instance.project_name.company.province }}, {{ instance.project_name.company.country }} <br>
+                        {{ instance.project_name.company.phone }} <br>
+                        {{ instance.project_name.company.user.email }} <br>
                     </p>
                 </td>
                 <td>
@@ -174,30 +177,10 @@
             <tr>
                 <td>
                     <p>
+                        <b>Other metadata such as:</b> <br>
                         Mix ID: <br>
-                        Temp (*C): <br>
                         Supplier: <br>
-                        Storage type: 
-                    </p>
-                </td>
-                <td>
-                    <p>
-                        CH420 <br>
-                        22 <br>
-                        LaFarge <br>
-                        Box 
-                    </p>
-                </td>
-                <td></td>
-                <td></td>
-                <td>
-                    <p>
-                        Approved By: <br> 
-                    </p>
-                </td>
-                <td>
-                    <p>
-                        Dean Grimm <br>
+                        ...
                     </p>
                 </td>
             </tr>

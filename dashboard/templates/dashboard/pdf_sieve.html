@@ -1,0 +1,270 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Report {{ instance.id }}</title>
+        <style type="text/css">
+            @page {
+                size: letter portrait;
+                margin: 2cm;
+            }
+            .body {
+                font-weight: 200;
+                font-size: 12px;
+            }
+            .table {
+                width: 100%;
+            }
+            table, th, td {
+                border: 1px solid black;
+            }
+            th, td {
+                padding-top: 2px;
+            }
+            .header {
+                font-size: 20px;
+                font-weight: 100;
+                text-align: center;
+                color: #007cae;
+            }
+            .title {
+                font-size: 22px;
+                font-weight: 100;
+               /* text-align: right;*/
+               padding: 10px 20px 0px 20px;  
+            }
+            .title span {
+                color: #007cae;
+            }
+            .details {
+                padding: 10px 20px 0px 20px;
+                text-align: left !important;
+                /*margin-left: 40%;*/
+            }
+            .hrItem {
+                border: none;
+                height: 1px;
+                /* Set the hr color */
+                color: #333; /* old IE */
+                background-color: #fff; /* Modern Browsers */
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td colspan="3">
+                    <img src="{% static 'images/logos/exl_logo.png' %}" alt="logo">
+                    <br>    
+                </td>
+                <td style='text-align: right;' colspan="4">
+                    <p>
+                        {{ instance.project_name.office }} <br>
+                        {{ instance.project_name.office.address }} <br>
+                        {{ instance.project_name.office.city }}, {{ instance.project_name.office.province }}, {{ instance.project_name.office.country }} <br>
+                        {{ instance.project_name.office.phone }} <br>
+                        {{ instance.project_name.office.user.email }} <br>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <p>
+                        {{ instance.project_name.company }} <br>
+                        {{ instance.project_name.company.address }} <br>
+                        {{ instance.project_name.company.city }}, {{ instance.project_name.company.province }}, {{ instance.project_name.company.country }} <br>
+                        {{ instance.project_name.company.phone }} <br>
+                        {{ instance.project_name.company.user.email }} <br>
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Project: <br>
+                        Technician: <br>
+                        Date Cast: <br>
+                        Date Received: <br>
+                    </p>
+                </td>
+                <td>
+                    <p>
+                    {{ instance.project_name }} <br>
+                    {{ instance.technician }} <br>
+                    {{ instance.date_sampled }} <br>
+                    {{ instance.date_received }}
+                    </p> 
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>
+                        Wet Weight
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Dry Weight
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Moisture Content
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        Result
+                    </p>
+                </td>
+            </tr>
+            {% for sample in samples %}
+                <tr>
+                    <td>
+                        <p>
+                            {{ sample.wet_weight }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.dry_weight }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.moisture_content }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {% if sample.result == 0 %}
+                                Pass
+                            {% elif sample.result == 1 or sample.result == 2 %}
+                                Fail
+                            {% endif %}
+                        </p>
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    <p>
+                        <b>Screen Size (mm)</b>
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        120
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        80
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        40
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        20
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        10
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        5
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        1
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        0.5
+                    </p>
+                </td>
+                <td>
+                    <p>
+                        0.25
+                    </p>
+                </td>
+            </tr>
+            {% for sample in samples %}
+                <tr>
+                    <td>
+                        <p>
+                            <b>Amount Passed (g)</b>
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.mm_120 }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.mm_80 }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.mm_40 }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.mm_20 }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.mm_10 }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.mm_5 }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.mm_1 }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.mm_05 }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>
+                            {{ sample.mm_025 }}
+                        </p>
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="10">
+                    <img src="data:image/png;base64, {{ plot_data }}" alt="Sieve Plot">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>
+                        <b>Other metadata such as:</b> <br>
+                        Mix ID: <br>
+                        Supplier: <br>
+                        ...
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>
