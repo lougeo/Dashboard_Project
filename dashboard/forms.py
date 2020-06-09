@@ -55,7 +55,7 @@ class NewSieveReportForm(ModelForm):
             except (ValueError, TypeError):
                 pass # invalid input, pass and fall back to empty queryset
 
-class FullConcreteReportUpdateForm(ModelForm):
+class FullReportUpdateForm(ModelForm):
     class Meta:
         model = Report
         exclude = ['status', 'report_type']
@@ -63,12 +63,8 @@ class FullConcreteReportUpdateForm(ModelForm):
     # This sets the project querset to only allow selection of that clients projects
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['project_name'].queryset = self.instance.project_name.company.project_set.order_by('name')
+        self.fields['project_name'].queryset = Project.objects.filter(company=self.instance.project_name.company)
 
-class NewSampleForm(ModelForm):
-    class Meta:
-        model = ConcreteSample
-        fields = ['report', 'cast_date', 'days_break']
 
 class UpdateSampleForm(ModelForm):
     confirm = forms.BooleanField(initial=False, required=False, widget=forms.HiddenInput)
@@ -104,6 +100,10 @@ class UpdateSampleForm(ModelForm):
 class SampleSelectorForm(forms.Form):
     id = forms.IntegerField(widget=forms.HiddenInput())
 
+class ProjectManagerForm(ModelForm):
+    class Meta:
+        model = Project
+        fields = ['office', 'company']
 
 #################### FORMSETS #############################
 
@@ -111,6 +111,11 @@ ConcreteSampleFormSet = inlineformset_factory(Report,
                                               ConcreteSample, 
                                               fields=('days_break', 'break_date', 'width', 'height', 'weight', 'strength', 'result'),
                                               extra=0)
+
+SieveSampleFormSet = inlineformset_factory(Report, 
+                                           SieveSample, 
+                                           exclude=['report', 'status'],
+                                           extra=0)
 
 NewConcreteSampleFormSet = inlineformset_factory(Report, 
                                                  ConcreteSample, 

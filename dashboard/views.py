@@ -20,7 +20,7 @@ def home(request):
         reports = Report.objects.all().order_by('status', '-date_sampled', '-id')
         samples = ConcreteSample.objects.all()
 
-        # Total in lab
+        # Total samples in lab
         card_1 = reports.filter(status=0).count()
         # Breaks Today
         card_2 = samples.filter(break_date=timezone.now().date()).count()
@@ -34,14 +34,14 @@ def home(request):
         reports = Report.objects.filter(project_name__company__user__id=client).order_by('status', '-date_sampled')
         samples = ConcreteSample.objects.filter(report__project_name__company__user__id=client)
 
-        # Total in lab
-        card_1 = reports.filter(status=0).count()
+        # Total completed reports
+        card_1 = reports.filter(status=1).count()
+        # Total samples in lab
+        card_2 = reports.filter(status=0).count()
         # Breaks Today
-        card_2 = samples.filter(break_date=timezone.now().date()).count()
-        # Waiting approval
-        card_3 = samples.filter(status=1).count()
-
-        card_titles = ['Total Samples in Lab', 'Breaks Today', 'Waiting Approval']
+        card_3 = samples.filter(break_date=timezone.now().date()).count()
+        
+        card_titles = ['Total Completed Reports', 'Total Samples in Lab', 'Breaks Today']
 
     
 
@@ -270,51 +270,63 @@ def view_report_full(request, pk):
 @user_passes_test(is_employee)
 def update_report_full(request, pk):
     instance = Report.objects.get(pk=pk)
-    samples = instance.concrete_samples.all()
+    report_type_name = str(instance.report_type).lower()
 
     if request.method == 'POST':
+        print(request.POST)
 
         # Checks which button is clicked
         # Updates report and samples
         if 'update' in request.POST:
-            report_form = FullConcreteReportUpdateForm(request.POST, prefix='form1', instance=instance)
+            report_form = FullReportUpdateForm(request.POST, prefix='form1', instance=instance)
             sample_forms = ConcreteSampleFormSet(request.POST, prefix='form2', instance=instance)
+            project_form = ProjectManagerForm(request.POST, prefix='form3', instance=instance.project_name)
             
-            # Saving the various forms
-            if report_form.is_valid() and report_form.has_changed():
-                report_form.save()
-            if sample_forms.is_valid() and sample_forms.has_changed():
-                sample_forms.save()
 
-            # Checking, and marking if report is now complete
-            # This should be made slightly more comprehensive
-            if sample_forms.is_valid():
-                num_samples = 0
-                num_complete = 0
-                for sample in sample_forms:
-                    s_inst = sample.cleaned_data['id']
-                    num_samples += 1
-                    # Auto approving modified samples
-                    if sample.has_changed() and sample.cleaned_data['strength'] != None:
-                        s_inst.status = 2
-                        s_inst.save()
-                    if s_inst.status == 2: #sample.cleaned_data['id'].status == 2
-                        num_complete += 1
-                print(f'numsamples: {num_samples}')
-                print(f'numcomplete: {num_complete}')
-                if num_samples == num_complete:
-                    instance.status = 1
-                    instance.save()
+            # If any of the 3 form save conditions execute, redirects to home page and flashes message
+            if (report_form.is_valid() and report_form.has_changed()) or \
+               (sample_forms.is_valid() and sample_forms.has_changed()) or \
+               (project_form.is_valid() and project_form.has_changed()):
 
-            # If either of the two form save conditions execute, redirects to home page and flashes message
-            if (report_form.is_valid() and report_form.has_changed()) or (sample_forms.is_valid() and sample_forms.has_changed()):
-                messages.success(request, f'Report Updated for {instance}')
+                # Saving the various forms
+                if report_form.is_valid() and report_form.has_changed():
+                    report_form.save()
+                if sample_forms.is_valid() and sample_forms.has_changed():
+                    sample_forms.save()
+                if project_form.is_valid() and project_form.has_changed():
+                    project_form.save()
+
+                # Checking, and marking if report is now complete
+                # This should be made slightly more comprehensive
+                # Maybe a form checkbox "mark as complete"
+                if sample_forms.is_valid():
+                    num_samples = 0
+                    num_complete = 0
+
+                    for sample in sample_forms:
+                        num_samples += 1
+
+                        # Auto approving modified samples
+                        if sample.has_changed() and sample.cleaned_data['result'] != None:
+                            s_inst = sample.cleaned_data['id']
+                            s_inst.status = 2
+                            s_inst.save()
+
+                        if s_inst.status == 2: #sample.cleaned_data['id'].status == 2
+                            num_complete += 1
+                    print(f'numsamples: {num_samples}')
+                    print(f'numcomplete: {num_complete}')
+                    if num_samples == num_complete:
+                        instance.status = 1
+                        instance.save()
+
+
+                messages.success(request, f'Report Updated for: {instance}')
                 return redirect('home')
+
             # Case where submit is pressed but nothing has changed
             else:
-                messages.success(request, f'Fuck off')
-                print(sample_forms.errors)
-                print(report_form.errors)
+                messages.success(request, f'Nothing has changed')
                 pass
         
         # Checks what submit button was clicked
@@ -323,17 +335,26 @@ def update_report_full(request, pk):
             instance.delete()
             return redirect('home')
 
-    report_form = FullConcreteReportUpdateForm(instance=instance, prefix='form1')
-    sample_forms = ConcreteSampleFormSet(instance=instance, prefix='form2')
+    if report_type_name == 'concrete':
+        samples = instance.concrete_samples.all()
+        sample_forms = ConcreteSampleFormSet(instance=instance, prefix='form2')
+
+    elif report_type_name == 'sieve':
+        samples = instance.sieve_samples.all()
+        sample_forms = SieveSampleFormSet(instance=instance, prefix='form2')
+
+    report_form = FullReportUpdateForm(instance=instance, prefix='form1')
+    project_form = ProjectManagerForm(instance=instance.project_name, prefix='form3')
 
     context = {
         'instance':instance, 
         'samples':samples, 
         'report_form':report_form, 
-        'sample_forms':sample_forms
+        'sample_forms':sample_forms,
+        'project_form':project_form
         }
-
-    return render(request, 'dashboard/update_report_full.html', context)
+    
+    return render(request, f'dashboard/update_report_full_{report_type_name}.html', context)
 
 ############################## HELPER VIEWS ######################################
 
