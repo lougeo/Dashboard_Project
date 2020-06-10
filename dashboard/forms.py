@@ -4,6 +4,8 @@ from django.forms import ModelForm, inlineformset_factory
 from .models import *
 from users.models import *
 
+####################### NEW REPORT FORMS ##################################
+
 # make a regular form for the report type which triggers a conditional to display the proper model form type
 class ReportTypeForm(forms.Form):
     name = forms.ModelChoiceField(queryset=ReportStandard.objects.all())
@@ -55,6 +57,27 @@ class NewSieveReportForm(ModelForm):
             except (ValueError, TypeError):
                 pass # invalid input, pass and fall back to empty queryset
 
+
+############################ NEW STANDARD FORMS ####################################
+
+class ReportStandardForm(ModelForm):
+    class Meta:
+        model = ReportStandard
+        fields = '__all__'
+
+class CompressionParametersForm(ModelForm):
+    class Meta:
+        model = ReportStandardParametersCompression
+        fields = ['cutoff']
+
+class SieveParametersForm(ModelForm):
+    class Meta:
+        model = ReportStandardParametersSieve
+        exclude = ['standard']
+
+
+############################# REPORT UPDATE FORMS ##################################
+
 class FullReportUpdateForm(ModelForm):
     class Meta:
         model = Report
@@ -65,6 +88,13 @@ class FullReportUpdateForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['project_name'].queryset = Project.objects.filter(company=self.instance.project_name.company)
 
+class ProjectManagerForm(ModelForm):
+    class Meta:
+        model = Project
+        fields = ['office', 'company']
+
+
+############################# LAB FORMS ###########################################
 
 class UpdateSampleForm(ModelForm):
     confirm = forms.BooleanField(initial=False, required=False, widget=forms.HiddenInput)
@@ -100,10 +130,6 @@ class UpdateSampleForm(ModelForm):
 class SampleSelectorForm(forms.Form):
     id = forms.IntegerField(widget=forms.HiddenInput())
 
-class ProjectManagerForm(ModelForm):
-    class Meta:
-        model = Project
-        fields = ['office', 'company']
 
 #################### FORMSETS #############################
 

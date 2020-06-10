@@ -1,0 +1,36 @@
+{% extends "dashboard/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class='container'>
+        <form method="POST" id="standardForm" data-form-url="{% url 'ajax_load_parameter_form' %}">
+            {% csrf_token %}
+            <fieldset class='form-group'>
+                <legend class='border-bottom mb-4'>New Standard</legend>
+                {{ form|crispy }}
+                <div id="form2_area"></div>
+                <div>
+                    <button class='btn btn-outline-info' type='submit' id="submit_button">Submit</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script>
+        $("#id_form1-standard_type").on('change', function() {
+            console.log("start");
+            var url = $("#standardForm").attr("data-form-url");
+            var standard_type = $("#id_form1-standard_type").val();
+
+            $.ajax({
+                url: url,
+                data: {
+                    'standard_type': standard_type
+                },
+            success: function(data) {
+                $("#form2_area").html(data);
+            }
+            });
+
+        });
+    </script>
+{% endblock content %}

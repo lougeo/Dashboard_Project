@@ -69,7 +69,8 @@ def home(request):
 
     return render(request, 'dashboard/home.html', context)
 
-# New Report page
+
+############################# NEW REPORT VIEWS ################################
 @login_required
 @user_passes_test(is_employee)
 def new_report(request):
@@ -174,8 +175,75 @@ def new_report_sieve(request, pk):
     return render(request, 'dashboard/new_report_sieve.html', context)
 
 
-# Update Report Page
-# Change the name of this view, and the following to something less ambiguous
+###################### NEW STANDARD VIEWS ######################
+
+@login_required
+@user_passes_test(is_employee)
+def new_standard(request):
+    if request.method == 'POST':
+
+        form = ReportStandardForm(request.POST, prefix='form1')
+        print(f"THIS IS FROM POST DATA: {request.POST.get('form1-standard_type')}, {type(request.POST.get('form1-standard_type'))}")
+
+        if form.is_valid():
+            standard_type = form.cleaned_data.get('standard_type')
+            report_standard = form.save(commit=False)     
+        if standard_type == 0:
+            parameter_form = CompressionParametersForm(request.POST, prefix='form2')
+        elif standard_type == 1:
+            parameter_form = SieveParametersForm(request.POST, prefix='form2')
+
+        if form.is_valid() and parameter_form.is_valid():
+            report_standard.save()
+            standard_parameters = parameter_form.save(commit=False)
+            standard_parameters.standard = report_standard
+            standard_parameters.save()
+        
+            messages.success(request, f'Standard created for: {report_standard}, {standard_parameters}')
+            return redirect('new_standard')
+    
+    form = ReportStandardForm(prefix='form1')
+
+    return render(request, 'dashboard/new_standard.html', {'form': form})
+
+
+# @login_required
+# @user_passes_test(is_employee)
+# def new_standard_compression(request, pk):
+#     instance = ReportStandard.objects.get(pk=pk)
+
+#     if request.method == 'POST':
+#         form = CompressionParametersForm(request.POST)
+#         if form.is_valid():
+#             form_instance = form.save(commit=False)
+#             form_instance.standard = instance
+#             form_instance.save()
+            
+#             messages.success(request, f'Standard created for: {form_instance}')
+#             return redirect('new_standard')
+    
+#     form = CompressionParametersForm()
+#     return render(request, 'dashboard/new_standard_compression.html', {'form': form})
+
+    
+# @login_required
+# @user_passes_test(is_employee)
+# def new_standard_sieve(request, pk):
+#     instance = ReportStandard.objects.get(pk=pk)
+
+#     if request.method == 'POST':
+#         form = SieveParametersForm(request.POST, instance=instance)
+#         if form.is_valid():
+#             instance = form.save()
+
+#             messages.success(request, f'Standard created for: {instance.standard}')
+#             return redirect('new_standard')
+    
+#     form = SieveParametersForm(instance=instance)
+#     return render(request, 'dashboard/new_standard_sieve.html', {'form': form})
+
+###################### LAB VIEWS ###############################
+
 @login_required
 @user_passes_test(is_employee)
 def lab_update_sample_list(request):
@@ -234,7 +302,8 @@ def report_approval(request):
         reports = ConcreteSample.objects.filter(status=1)
     return render(request, 'dashboard/report_approval.html', {'reports':reports, 'form':form})
 
-# View full concrete Report
+
+############################# MANAGE VIEWS ####################################
 @login_required
 def view_report_full(request, pk):
     instance = Report.objects.get(pk=pk)
@@ -356,6 +425,7 @@ def update_report_full(request, pk):
     
     return render(request, f'dashboard/update_report_full_{report_type_name}.html', context)
 
+
 ############################## HELPER VIEWS ######################################
 
 # View Report PDF
@@ -421,6 +491,7 @@ def SievePlotGenerator(request):
 ############################# AJAX VIEWS ####################################
 
 @login_required
+@user_passes_test(is_employee)
 def load_projects(request):
     client_id = request.GET.get('client')
     if client_id != '':
@@ -428,3 +499,21 @@ def load_projects(request):
     else:
         projects = Project.objects.none()
     return render(request, 'dashboard/project_dropdown_list.html', {'projects':projects})
+
+
+@login_required
+@user_passes_test(is_employee)
+def load_parameter_form(request):
+    standard_type = request.GET.get('standard_type')
+
+    if standard_type == '0':
+        parameter_form = CompressionParametersForm(prefix='form2')
+        url = 'dashboard/new_standard_compression.html'
+    elif standard_type == '1':
+        parameter_form = SieveParametersForm(prefix='form2')
+        url = 'dashboard/new_standard_sieve.html'
+    else:
+        print("UR A FOCKIN IDIOT")
+        return HttpResponse('')
+
+    return render(request, url, {'parameter_form':parameter_form})

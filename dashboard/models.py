@@ -6,9 +6,44 @@ from users.models import Profile, Project
 
 class ReportStandard(models.Model):
     name = models.CharField(max_length=30)
+    standard_type = models.PositiveSmallIntegerField(choices=[(0, 'Compression'),
+                                                              (1, 'Sieve')])
 
     def __str__(self):
         return self.name
+
+class ReportStandardParametersCompression(models.Model):
+    standard = models.ForeignKey(ReportStandard, on_delete=models.CASCADE)
+    cutoff = models.DecimalField(max_digits=6, decimal_places=2)
+
+    def __str__(self):
+        return f'{self.id}'
+        
+class ReportStandardParametersSieve(models.Model):
+    standard = models.ForeignKey(ReportStandard, on_delete=models.CASCADE)
+
+    min_120 = models.DecimalField("Min Passing 120 mm", max_digits=10, decimal_places=2)
+    min_80 = models.DecimalField("Min Passing 80 mm", max_digits=10, decimal_places=2)
+    min_40 = models.DecimalField("Min Passing 40 mm", max_digits=10, decimal_places=2)
+    min_20 = models.DecimalField("Min Passing 20 mm", max_digits=10, decimal_places=2)
+    min_10 = models.DecimalField("Min Passing 10 mm", max_digits=10, decimal_places=2)
+    min_5 = models.DecimalField("Min Passing 5 mm", max_digits=10, decimal_places=2)
+    min_1 = models.DecimalField("Min Passing 1 mm", max_digits=10, decimal_places=2)
+    min_05 = models.DecimalField("Min Passing 0.5 mm", max_digits=10, decimal_places=2)
+    min_025 = models.DecimalField("Min Passing 0.25 mm", max_digits=10, decimal_places=2)
+
+    max_120 = models.DecimalField("Max Passing 120 mm", max_digits=10, decimal_places=2)
+    max_80 = models.DecimalField("Max Passing 80 mm", max_digits=10, decimal_places=2)
+    max_40 = models.DecimalField("Max Passing 40 mm", max_digits=10, decimal_places=2)
+    max_20 = models.DecimalField("Max Passing 20 mm", max_digits=10, decimal_places=2)
+    max_10 = models.DecimalField("Max Passing 10 mm", max_digits=10, decimal_places=2)
+    max_5 = models.DecimalField("Max Passing 5 mm", max_digits=10, decimal_places=2)
+    max_1 = models.DecimalField("Max Passing 1 mm", max_digits=10, decimal_places=2)
+    max_05 = models.DecimalField("Max Passing 0.5 mm", max_digits=10, decimal_places=2)
+    max_025 = models.DecimalField("Max Passing 0.25 mm", max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.id
     
 class Report(models.Model):
     # 0:incomplete 1:complete

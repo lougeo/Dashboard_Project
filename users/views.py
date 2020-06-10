@@ -72,4 +72,4 @@ def new_project(request):
     else:
         form = NewProjectForm()
     
-    return render(request, 'dashboard/new_project.html', {'form': form})
+    return render(request, 'users/new_project.html', {'form': form})
