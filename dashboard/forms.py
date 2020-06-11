@@ -4,59 +4,44 @@ from django.forms import ModelForm, inlineformset_factory
 from .models import *
 from users.models import *
 
-####################### NEW REPORT FORMS ##################################
 
-# make a regular form for the report type which triggers a conditional to display the proper model form type
-class ReportTypeForm(forms.Form):
-    name = forms.ModelChoiceField(queryset=ReportStandard.objects.all())
+########################### NEW REPORT FORM #####################################
 
-# Only use this form for new reports, won't work with updating existing reports
-class NewConcreteReportForm(ModelForm):
+class NewReportForm(ModelForm):
+    test_type = forms.ChoiceField(choices=[(999, '--------'), (0, 'Compression'), (1, 'Sieve')])
     client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
 
     class Meta:
         model = Report
-        fields = ['client',
+        fields = ['test_type',
+                  'report_type', 
+                  'client',
                   'project_name', 
                   'date_received', 
                   'date_sampled', 
                   'technician']
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['report_type'].queryset = ReportStandard.objects.none()
         self.fields['project_name'].queryset = Project.objects.none()
 
-        if 'client' in self.data:
+        # This is to limit the standard queryset to those of the selected test type.
+        if 'form1-test_type' in self.data:
             try:
-                client_id = int(self.data.get('client'))
+                test_type_id = int(self.data.get('form1-test_type'))
+                self.fields['report_type'].queryset = ReportStandard.objects.filter(standard_type=test_type_id)
+            except (ValueError, TypeError):
+                pass # Invalid input, pass and fall back to empty queryset
+        
+        # This is to limit the project queryset to those of the selected client.
+        if 'form1-client' in self.data:
+            try:
+                client_id = int(self.data.get('form1-client'))
                 self.fields['project_name'].queryset = Project.objects.filter(company__id=client_id)
             except (ValueError, TypeError):
                 pass # invalid input, pass and fall back to empty queryset
-
-# Only use this form for new reports, won't work with updating existing reports
-class NewSieveReportForm(ModelForm):
-    client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
-
-    class Meta:
-        model = Report
-        fields = ['client',
-                  'project_name', 
-                  'date_received', 
-                  'date_sampled', 
-                  'technician']
-    
-    # This is to limit the project queryset to those of the selected client.
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['project_name'].queryset = Project.objects.none()
-
-        if 'client' in self.data:
-            try:
-                client_id = int(self.data.get('client'))
-                self.fields['project_name'].queryset = Project.objects.filter(company__id=client_id)
-            except (ValueError, TypeError):
-                pass # invalid input, pass and fall back to empty queryset
-
 
 ############################ NEW STANDARD FORMS ####################################
 

@@ -71,108 +71,76 @@ def home(request):
 
 
 ############################# NEW REPORT VIEWS ################################
+
 @login_required
 @user_passes_test(is_employee)
 def new_report(request):
+
     if request.method == 'POST':
-        form = ReportTypeForm(request.POST)
-        if form.is_valid():
-            report_type = form.cleaned_data.get('name')
-            report_type_name = str(report_type).lower()
-            return redirect(f'new_report_{report_type_name}', pk=report_type.id)
+
+        report_form = NewReportForm(request.POST, prefix='form1')
+
+        if report_form.is_valid():
+
+            test_type = int(report_form.cleaned_data.get('test_type'))
+            report = report_form.save(commit=False) 
+
+            # Compression test
+            if test_type == 0:
+
+                sample_form = NewConcreteSampleFormSet(request.POST, instance=report, prefix='form2')
+                cast_date = report_form.cleaned_data.get('date_sampled')
+
+                if sample_form.is_valid():
+
+                    # Sets the cast, and break date for the sample if break day is entered
+                    for sample in sample_form:
+                        if sample.cleaned_data.get('days_break') != None:
+                            break_day = sample.cleaned_data.get('days_break')
+                            sample_obj = sample.save(commit=False)
+                            sample_obj.cast_date = cast_date
+                            sample_obj.break_date = cast_date + timedelta(days=break_day)
+                        else:
+                            continue
+                    report.save()
+                    sample_form.save()
+                    
+                    # Flash message and redirect
+                    messages.success(request, f'Report {report.id}, Created for {report.project_name}')
+                    return redirect('new_report')
+
+            # Sieve test
+            elif test_type == 1:
+                sample_form = NewSieveSampleFormSet(request.POST, instance=report, prefix='form2')
+
+                if sample_form.is_valid():
+                
+                    # THIS NEEDS TO BE UPGRADED
+                    for sample in sample_form:
+
+                        wet_weight = sample.cleaned_data.get('wet_weight')
+                        dry_weight = sample.cleaned_data.get('dry_weight')
+
+                        if wet_weight != None and dry_weight != None:
+
+                            sample_obj = sample.save(commit=False)
+                            sample_obj.moisture_content = wet_weight - dry_weight
+                            # Add conditional setting result
+                            # Add conditional setting status based on Manager/Technician
+                    
+                    report.save()
+                    sample_form.save()
+
+                    # Flash message and redirect
+                    messages.success(request, f'Report {report.id}, Created for {report.project_name}')
+                    return redirect('new_report')
+        
+        else:
+            messages.error(request, report_form.errors)
     
-    form = ReportTypeForm()
+    form = NewReportForm(prefix='form1')
+
     return render(request, 'dashboard/new_report.html', {'form': form})
-
-@login_required
-@user_passes_test(is_employee)
-def new_report_concrete(request, pk):
-
-    if request.method == 'POST':
-        form = NewConcreteReportForm(request.POST)
-
-        if form.is_valid():
-
-            # Setting required variables 
-            new_report = form.save(commit=False)
-            new_report.report_type = ReportStandard.objects.get(pk=pk)
-            cast_date = form.cleaned_data.get('date_sampled')
-            sample_form = NewConcreteSampleFormSet(request.POST, instance=new_report, prefix='form2')
-
-            if sample_form.is_valid():
-
-                # Sets the cast, and break date for the sample if break day is entered
-                for sample in sample_form:
-                    if sample.cleaned_data.get('days_break') != None:
-                        break_day = sample.cleaned_data.get('days_break')
-                        sample_obj = sample.save(commit=False)
-                        sample_obj.cast_date = cast_date
-                        sample_obj.break_date = cast_date + timedelta(days=break_day)
-                    else:
-                        continue
-                new_report.save()
-                sample_form.save()
-
-                messages.success(request, f'Report {new_report.id}, Created for {new_report.project_name}')
-                return redirect('new_report')
-
-    # Not prefixing the first form because that messes with the AJAX/form submission
-    form = NewConcreteReportForm()
-    sample_form = NewConcreteSampleFormSet(prefix='form2')
-
-    context = {
-        'form': form,
-        'sample_form':sample_form
-    }
-    return render(request, 'dashboard/new_report_concrete.html', context)
-
-@login_required
-@user_passes_test(is_employee)
-def new_report_sieve(request, pk):
-
-    if request.method == 'POST':
-
-        form = NewSieveReportForm(request.POST)
-
-        if form.is_valid():
-
-            new_report = form.save(commit=False)
-            new_report.report_type = ReportStandard.objects.get(pk=pk)
-            sample_form = NewSieveSampleFormSet(request.POST, instance=new_report, prefix='form2')
-
-            if sample_form.is_valid():
-                
-                # THIS NEEDS TO BE UPGRADED
-                for sample in sample_form:
-
-                    wet_weight = sample.cleaned_data.get('wet_weight')
-                    dry_weight = sample.cleaned_data.get('dry_weight')
-
-                    if wet_weight != None and dry_weight != None:
-
-                        sample_obj = sample.save(commit=False)
-                        sample_obj.moisture_content = wet_weight - dry_weight
-                        # Add conditional setting result
-                        # Add conditional setting status based on Manager/Technician
-
-                    else:
-                        continue
-                
-                new_report.save()
-                sample_form.save()
-
-                messages.success(request, f'Report {new_report.id}, Created for {new_report.project_name}')
-                return redirect('new_report')
-
-    form = NewSieveReportForm()
-    sample_form = NewSieveSampleFormSet(prefix='form2')
-
-    context = {
-        'form':form,
-        'sample_form':sample_form
-    }
-    
-    return render(request, 'dashboard/new_report_sieve.html', context)
 
 
 ###################### NEW STANDARD VIEWS ######################
@@ -183,7 +151,6 @@ def new_standard(request):
     if request.method == 'POST':
 
         form = ReportStandardForm(request.POST, prefix='form1')
-        print(f"THIS IS FROM POST DATA: {request.POST.get('form1-standard_type')}, {type(request.POST.get('form1-standard_type'))}")
 
         if form.is_valid():
             standard_type = form.cleaned_data.get('standard_type')
@@ -206,41 +173,6 @@ def new_standard(request):
 
     return render(request, 'dashboard/new_standard.html', {'form': form})
 
-
-# @login_required
-# @user_passes_test(is_employee)
-# def new_standard_compression(request, pk):
-#     instance = ReportStandard.objects.get(pk=pk)
-
-#     if request.method == 'POST':
-#         form = CompressionParametersForm(request.POST)
-#         if form.is_valid():
-#             form_instance = form.save(commit=False)
-#             form_instance.standard = instance
-#             form_instance.save()
-            
-#             messages.success(request, f'Standard created for: {form_instance}')
-#             return redirect('new_standard')
-    
-#     form = CompressionParametersForm()
-#     return render(request, 'dashboard/new_standard_compression.html', {'form': form})
-
-    
-# @login_required
-# @user_passes_test(is_employee)
-# def new_standard_sieve(request, pk):
-#     instance = ReportStandard.objects.get(pk=pk)
-
-#     if request.method == 'POST':
-#         form = SieveParametersForm(request.POST, instance=instance)
-#         if form.is_valid():
-#             instance = form.save()
-
-#             messages.success(request, f'Standard created for: {instance.standard}')
-#             return redirect('new_standard')
-    
-#     form = SieveParametersForm(instance=instance)
-#     return render(request, 'dashboard/new_standard_sieve.html', {'form': form})
 
 ###################### LAB VIEWS ###############################
 
@@ -307,11 +239,17 @@ def report_approval(request):
 @login_required
 def view_report_full(request, pk):
     instance = Report.objects.get(pk=pk)
-    report_type_name = str(instance.report_type).lower()
-    if report_type_name == 'concrete':
+    report_type_id = instance.report_type.standard_type
+
+    # Case for compression test
+    if report_type_id == 0:
+        report_type_name = 'compression'
         samples = instance.concrete_samples.all()
         context = {'instance':instance, 'samples':samples}
-    elif report_type_name == 'sieve':
+    
+    # Case for sieve test
+    elif report_type_id == 1:
+        report_type_name = 'sieve'
         samples = instance.sieve_samples.all()
         sample = instance.sieve_samples.first()
         data = [
@@ -339,7 +277,7 @@ def view_report_full(request, pk):
 @user_passes_test(is_employee)
 def update_report_full(request, pk):
     instance = Report.objects.get(pk=pk)
-    report_type_name = str(instance.report_type).lower()
+    report_type_id = instance.report_type.standard_type
 
     if request.method == 'POST':
         print(request.POST)
@@ -404,20 +342,20 @@ def update_report_full(request, pk):
             instance.delete()
             return redirect('home')
 
-    if report_type_name == 'concrete':
-        samples = instance.concrete_samples.all()
+    # Case for compression test
+    if report_type_id == 0:
+        report_type_name = 'compression'
         sample_forms = ConcreteSampleFormSet(instance=instance, prefix='form2')
 
-    elif report_type_name == 'sieve':
-        samples = instance.sieve_samples.all()
+    # Case for sieve test
+    elif report_type_id == 1:
+        report_type_name = 'sieve'
         sample_forms = SieveSampleFormSet(instance=instance, prefix='form2')
 
     report_form = FullReportUpdateForm(instance=instance, prefix='form1')
     project_form = ProjectManagerForm(instance=instance.project_name, prefix='form3')
 
     context = {
-        'instance':instance, 
-        'samples':samples, 
         'report_form':report_form, 
         'sample_forms':sample_forms,
         'project_form':project_form
@@ -432,16 +370,20 @@ def update_report_full(request, pk):
 @login_required 
 def ViewPDF(request, pk):
     instance = Report.objects.get(pk=pk)
-    report_type_name = str(instance.report_type).lower()
+    report_type_id = instance.report_type.standard_type
 
-    if report_type_name == 'concrete':
+    # Case for compression test
+    if report_type_id == 0:
+        report_type_name = 'compression'
         samples = instance.concrete_samples.all()
         context = {
             'instance':instance, 
             'samples':samples
         }
 
-    elif report_type_name == 'sieve':
+    # Case for sieve test
+    elif report_type_id == 1:
+        report_type_name = 'sieve'
         samples = instance.sieve_samples.all()
         sample = instance.sieve_samples.first()
         data = [
@@ -467,8 +409,39 @@ def ViewPDF(request, pk):
 @login_required
 def DownloadPDF(request, pk):
     instance = Report.objects.get(pk=pk)
-    samples = instance.concrete_samples.all()
-    pdf = render_to_pdf('dashboard/view_cr.html', {'instance':instance, 'samples':samples})
+    report_type_id = instance.report_type.standard_type
+
+    # Case for compression test
+    if report_type_id == 0:
+        report_type_name = 'compression'
+        samples = instance.concrete_samples.all()
+        context = {
+            'instance':instance, 
+            'samples':samples
+        }
+
+    # Case for sieve test
+    elif report_type_id == 1:
+        report_type_name = 'sieve'
+        samples = instance.sieve_samples.all()
+        sample = instance.sieve_samples.first()
+        data = [
+            sample.mm_120,
+            sample.mm_80,
+            sample.mm_40,
+            sample.mm_20,
+            sample.mm_10,
+            sample.mm_5,
+            sample.mm_1,
+            sample.mm_05,
+            sample.mm_025]
+        plot_data = plot_sieve_report(data)
+        context = {
+            'instance':instance,
+            'samples':samples,
+            'plot_data':plot_data
+        }
+    pdf = render_to_pdf(f'dashboard/pdf_{report_type_name}.html', context)
     response = HttpResponse(pdf, content_type='application/pdf')
     filename = f"Report_{instance.id}.pdf"
     content = f"attachment; filename={filename}"
@@ -492,13 +465,41 @@ def SievePlotGenerator(request):
 
 @login_required
 @user_passes_test(is_employee)
+def load_standards(request):
+    standard_id = int(request.GET.get('standard'))
+    if standard_id != 999:
+        standards = ReportStandard.objects.filter(standard_type=standard_id)
+    else:
+        standards = ReportStandard.objects.none()
+    return render(request, 'dashboard/dropdown_list_standards.html', {'standards':standards})
+
+
+@login_required
+@user_passes_test(is_employee)
 def load_projects(request):
     client_id = request.GET.get('client')
     if client_id != '':
         projects = Project.objects.filter(company__id=client_id)
     else:
         projects = Project.objects.none()
-    return render(request, 'dashboard/project_dropdown_list.html', {'projects':projects})
+    return render(request, 'dashboard/dropdown_list_projects.html', {'projects':projects})
+
+
+@login_required
+@user_passes_test(is_employee)
+def load_sample_formset(request):
+    standard_id = int(request.GET.get('standard'))
+
+    if standard_id == 0:
+        sample_form = NewConcreteSampleFormSet(prefix='form2')
+        url = 'dashboard/new_report_compression.html'
+    elif standard_id == 1:
+        sample_form = NewSieveSampleFormSet(prefix='form2')
+        url = 'dashboard/new_report_sieve.html'
+    else:
+        return HttpResponse('')
+
+    return render(request, url, {'sample_form':sample_form})
 
 
 @login_required
@@ -513,7 +514,6 @@ def load_parameter_form(request):
         parameter_form = SieveParametersForm(prefix='form2')
         url = 'dashboard/new_standard_sieve.html'
     else:
-        print("UR A FOCKIN IDIOT")
         return HttpResponse('')
 
     return render(request, url, {'parameter_form':parameter_form})

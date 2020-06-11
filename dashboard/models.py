@@ -43,7 +43,7 @@ class ReportStandardParametersSieve(models.Model):
     max_025 = models.DecimalField("Max Passing 0.25 mm", max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return self.id
+        return f'{self.id}'
     
 class Report(models.Model):
     # 0:incomplete 1:complete

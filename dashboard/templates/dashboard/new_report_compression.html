@@ -1,0 +1,32 @@
+{% load crispy_forms_tags %}
+
+<div id='form_set'>
+    <legend class='border-bottom mb-4'>Add Samples</legend>
+    {{ sample_form.management_form }}
+    <div id="empty_form" style="display:none">
+        {{ sample_form.empty_form.days_break|as_crispy_field }}
+    </div>
+    {% for sample in sample_form %}
+        {{ sample.days_break|as_crispy_field }}
+    {% endfor %}
+</div>
+<input class="btn btn-outline-info" type="button" value="Add" id="add_more">
+<input class="btn btn-outline-danger" type="button" value="Remove" id="remove_more">
+
+
+<script>
+    $('#add_more').click(function() {
+        var num_forms = $('#id_form2-TOTAL_FORMS').val();
+        $('#form_set').append($('#empty_form').html().replace(/__prefix__/g, num_forms));
+        $('#id_form2-TOTAL_FORMS').val(parseInt(num_forms) + 1);
+    });
+</script>
+<script>
+    $('#remove_more').click(function() {
+        var num_forms = $('#id_form2-TOTAL_FORMS').val();
+        if (num_forms > 0) {
+            $('#form_set').children('div').eq(-1).remove();
+            $('#id_form2-TOTAL_FORMS').val(parseInt(num_forms) - 1);
+        }
+    });
+</script>
