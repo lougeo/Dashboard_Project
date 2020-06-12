@@ -1,0 +1,23 @@
+{% extends "dashboard/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class='container'>
+        <br>
+        <h1>Projects</h1>
+        <br>
+        <table class="table">
+            <tr>
+                <th>Name</th>
+                <th>Company</th>
+                <th>Update</th>
+            </tr>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.company.company }}</td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'manage_update' item.id 'project' %}">Update</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock content %}

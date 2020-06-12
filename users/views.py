@@ -3,9 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import *
 from .models import Project
-
-def is_manager(user):
-    return user.groups.filter(name="Manager").exists()
+from dashboard.utils import is_manager
 
 # This url will only be accessible my manager user
 @login_required

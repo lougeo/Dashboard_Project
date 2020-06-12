@@ -13,7 +13,7 @@ class Profile(models.Model):
     province = models.CharField(max_length=100)
     country = models.CharField(max_length=100)
     phone = models.CharField(max_length=100)
-    signature = models.FileField(null=True, blank=True)
+    #signature = models.FileField(null=True, blank=True)
 
 
     def __str__(self):

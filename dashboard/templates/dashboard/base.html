@@ -57,6 +57,20 @@
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">MANAGE</a>
+                            <ul class="dropdown-menu bg-dark">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'manage_list' 'project' %}">Projects</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'manage_list' 'standard' %}">Standards</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'manage_list' 'user' %}">Users</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">ANALYTICS</a>
                             <ul class="dropdown-menu bg-dark">
                                 <li class="nav-item active">
@@ -93,7 +107,7 @@
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                         </li>
                     </ul>
-                {% else %}
+                {% elif request.user.groups.first.name == "Client" %}
                     <ul class='nav navbar-nav'>
                         <li class="nav-item active">
                             <a class="nav-link" href="{% url 'home' %}">Dashboard</a>

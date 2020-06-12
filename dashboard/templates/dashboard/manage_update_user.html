@@ -3,7 +3,7 @@
 {% block content %}
     <div class='card-body'>
         <div class='card-header text-white' style="background-color: #4d4d4d;">
-            <h1>{{ profile }}</h1>
+            <h1>{{ instance }}</h1>
         </div>
         <div class='card-body'>
             <br>
@@ -11,7 +11,14 @@
                 {% csrf_token %}
                 {{ email_form|crispy }}
                 {{ form|crispy }}
-                <button class='btn btn-md btn-success' type="submit">Update</button>
+                <div class='row'>
+                    <div class='col' >
+                        <button class='btn btn-md btn-danger' type='submit' name='delete'>Delete</button>
+                    </div>
+                    <div class='col text-right'>
+                        <button class='btn btn-md btn-success' type='submit' name='update'>Update</button>        
+                    </div>
+                </div>
             </form>
         </div>
     </div>

@@ -10,6 +10,7 @@ from .forms import *
 from .models import *
 from .filters import *
 from .utils import *
+from users.forms import ProfileForm, NewProjectForm, UserEmailUpdateForm
 
 
 # Dasboard page
@@ -362,6 +363,110 @@ def update_report_full(request, pk):
         }
     
     return render(request, f'dashboard/update_report_full_{report_type_name}.html', context)
+
+############################## MANAGE VIEWS ######################################
+
+@login_required
+@user_passes_test(is_manager)
+def manage_list(request, mtype):
+    if mtype == 'project':
+        items = Project.objects.all().order_by('name')
+    elif mtype == 'standard':
+        items = ReportStandard.objects.all().order_by('standard_type')
+    elif mtype == 'user':
+        items = Profile.objects.filter(Q(user__groups__name='Client') | 
+                                       Q(user__groups__name='Technician') |
+                                       Q(user__groups__name='Manager')).order_by('company')
+
+    return render(request, f'dashboard/manage_list_{mtype}.html', {'items':items})
+
+@login_required
+@user_passes_test(is_manager)
+def manage_update(request, pk, mtype):
+    if request.method == "POST":
+        print(request.POST)
+        if mtype == 'standard':
+            instance = ReportStandard.objects.get(pk=pk)
+            standard_form = ManageReportStandardForm(request.POST, instance=instance, prefix='form1')
+            
+            if instance.standard_type == 0:
+                parameter_form = CompressionParametersForm(request.POST, instance=instance.compression.first(), prefix='form2')
+            elif instance.standard_type == 1:
+                parameter_form = SieveParametersForm(request.POST, instance=instance.sieve.first(), prefix='form2')
+            
+            if 'update' in request.POST:
+                standard_form.save()
+                parameter_form.save()
+
+                messages.success(request, f'Standard: {instance} updated!')
+
+            elif 'delete' in request.POST:
+                instance.delete()
+
+                messages.warning(request, f'Standard: {instance} deleted!')
+
+            return redirect('manage_list', 'standard')
+
+        elif mtype == 'project':
+            instance = Project.objects.get(pk=pk)
+            form = NewProjectForm(request.POST, instance=instance)
+
+            if 'update' in request.POST:
+                form.save()
+                messages.success(request, f'Project: {instance} updated!')
+            elif 'delete' in request.POST:
+                instance.delete()
+                messages.warning(request, f'Project: {instance} deleted!')
+
+            return redirect('manage_list', 'project')
+            
+        elif mtype == 'user':
+            instance = Profile.objects.get(pk=pk)
+            form = ProfileForm(request.POST, instance=instance, prefix='form1')
+            email_form = UserEmailUpdateForm(request.POST, instance=instance.user, prefix='form2')
+
+            if 'update' in request.POST:
+                form.save()
+                email_form.save()
+
+                messages.success(request, f'User: {instance} updated!')
+            elif 'delete' in request.POST:
+                instance.delete()
+                
+                messages.warning(request, f'User: {instance} deleted!')
+                
+            return redirect('manage_list', 'user')
+            
+
+    if mtype == 'standard':
+
+        instance = ReportStandard.objects.get(pk=pk)
+        standard_form = ManageReportStandardForm(instance=instance, prefix='form1')
+
+        if instance.standard_type == 0:
+            parameter_form = CompressionParametersForm(instance=instance.compression.first(), prefix='form2')
+        elif instance.standard_type == 1:
+            parameter_form = SieveParametersForm(instance=instance.sieve.first(), prefix='form2')
+
+        context = {'standard_form':standard_form, 
+                   'parameter_form':parameter_form, 
+                   'instance':instance}
+
+    elif mtype == 'project':
+        instance = Project.objects.get(pk=pk)
+        form = NewProjectForm(instance=instance)
+        context = {'form':form, 'instance':instance}
+
+    elif mtype == 'user':
+        instance = Profile.objects.get(pk=pk)
+        form = ProfileForm(instance=instance, prefix='form1')
+        email_form = UserEmailUpdateForm(instance=instance.user, prefix='form2')
+        context = {'form':form, 
+                   'email_form':email_form, 
+                   'instance':instance}
+
+    return render(request, f'dashboard/manage_update_{mtype}.html', context)
+
 
 
 ############################## HELPER VIEWS ######################################

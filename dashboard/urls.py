@@ -12,6 +12,9 @@ urlpatterns = [
     path('update-report-full/<int:pk>/', views.update_report_full, name='update_report_full'),
     path('view-pdf/<int:pk>/', views.ViewPDF, name='ViewPDF'),
     path('download-pdf/<int:pk>/', views.DownloadPDF, name='DownloadPDF'),
+    path('manage-list/<str:mtype>/', views.manage_list, name='manage_list'),
+    path('manage-update/<int:pk>/<str:mtype>/', views.manage_update, name='manage_update'),
+
 
     path('ajax/load-standards/', views.load_standards, name='ajax_load_standards'),
     path('ajax/load-projects/', views.load_projects, name='ajax_load_projects'),

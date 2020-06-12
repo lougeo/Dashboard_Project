@@ -1,0 +1,31 @@
+{% extends "dashboard/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class='card-body'>
+        <div class='card-header text-white' style="background-color: #4d4d4d;">
+            <h1>{{ instance }}</h1>
+        </div>
+        <div class='card-body'>
+            <br>
+            <form method='POST'>
+                {% csrf_token %}
+                <div class='row'>
+                    <div class='col'>
+                        {{ standard_form|crispy }}
+                    </div>
+                    <div class='col'>
+                        {{ parameter_form|crispy }}
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col' >
+                        <button class='btn btn-md btn-danger' type='submit' name='delete'>Delete</button>
+                    </div>
+                    <div class='col text-right'>
+                        <button class='btn btn-md btn-success' type='submit' name='update'>Update</button>        
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}

@@ -13,14 +13,14 @@ class ReportStandard(models.Model):
         return self.name
 
 class ReportStandardParametersCompression(models.Model):
-    standard = models.ForeignKey(ReportStandard, on_delete=models.CASCADE)
+    standard = models.ForeignKey(ReportStandard, on_delete=models.CASCADE, related_name='compression')
     cutoff = models.DecimalField(max_digits=6, decimal_places=2)
 
     def __str__(self):
         return f'{self.id}'
         
 class ReportStandardParametersSieve(models.Model):
-    standard = models.ForeignKey(ReportStandard, on_delete=models.CASCADE)
+    standard = models.ForeignKey(ReportStandard, on_delete=models.CASCADE, related_name='sieve')
 
     min_120 = models.DecimalField("Min Passing 120 mm", max_digits=10, decimal_places=2)
     min_80 = models.DecimalField("Min Passing 80 mm", max_digits=10, decimal_places=2)

@@ -116,6 +116,14 @@ class SampleSelectorForm(forms.Form):
     id = forms.IntegerField(widget=forms.HiddenInput())
 
 
+############################ MANAGE FORMS #################################################
+
+
+class ManageReportStandardForm(ModelForm):
+    class Meta:
+        model = ReportStandard
+        fields = ['name']
+
 #################### FORMSETS #############################
 
 ConcreteSampleFormSet = inlineformset_factory(Report, 

@@ -1,0 +1,29 @@
+{% extends "dashboard/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class='container'>
+        <br>
+        <h1>Standards</h1>
+        <br>
+        <table class="table">
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Update</th>
+            </tr>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>
+                        {% if item.standard_type == 0 %}
+                            Compression
+                        {% elif item.standard_type == 1 %}
+                            Sieve
+                        {% endif %}
+                    </td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'manage_update' item.id 'standard' %}">Update</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock content %}
