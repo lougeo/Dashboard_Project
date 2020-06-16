@@ -1,19 +1,113 @@
 {% extends "dashboard/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <div class='container'>
-        <form method="POST">
-            {% csrf_token %}
-            <fieldset class='form-group'>
-                <legend class='border-bottom mb-4'>Log In</legend>
-                {{ form|crispy }}
-                <div class='form-group'>
-                    <button class='btn btn-outline-info' type='submit'>Login</button>
-                    <small class='text-muted ml-2'>
-                        <a href="{% url 'password_reset' %}">Forgot Password?</a>
-                    </small>
+    <div class='container'> 
+        <br>
+        <div class='row justify-content-center'>
+            <div class='col card'>
+                <div class='card-header bg-dark text-white'>
+                    <h2 class='card-title text-center'>DEMO: Laboratory Information Management System</h2>
                 </div>
-            </fieldset>
-        </form>
+            </div>
+        </div> <br>
+        <div class='row justify-content-center'>
+            <div class='col card'>
+                <div class='card-header bg-dark text-white'>
+                    <h4 class='card-title'>Summary</h4>
+                </div>
+                <div class='card-body'>
+                    This is a demo version for a database system designed for civil engineering labs, but could be adapted to any other industry which involves a similar process. <br><br>
+                    
+                    The process constitutes:
+                    <ul>
+                        <li>Technicians entering data.</li>
+                        <li>Approval of this data by managers.</li>
+                        <li>Generation of plots from this data.</li>
+                        <li>Generation of PDF reports.</li>
+                        <li>Automating delivery of reports to clients.</li>
+                        <li>Giving clients on demand access to their reports.</li>
+                    </ul>
+
+                    Several points worth noting:
+                    <ul>
+                        <li>Because this is a demo version, some features, such as password reset, have been disabled.</li>
+                        <li>This is a live, and public demo, and although I will be maintaining it regularily, please do not:</li>
+                            <ul>
+                                <li>Use personal information</li>
+                                <li>Use profanity</li>
+                            </ul>
+                        <li>This is just a starting point, and the system is fully custumizable to any other potential requirements.</li>
+                    </ul>
+
+                    If you come across any bugs I would greatly appreciate you reaching out and letting me know! <br>
+                    Please do not hesitate to reach out for any other reason!
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class='row justify-content-center'>
+            <div class='card-deck'>
+                <div class='col card'>
+                    <div class='card-header bg-dark text-white'>
+                        <h4 class='card-title'>Manager</h4>
+                    </div>
+                    <div class='card-body'>
+                        Username: test_manager
+                        Password: testing1234
+                    </div>
+                </div>
+                <div class='col card'>
+                    <div class='card-header bg-dark text-white'>
+                        <h4 class='card-title'>Technician</h4>
+                    </div>
+                    <div class='card-body'>
+                        Username: test_technician <br>
+                        Password: testing1234
+                    </div>
+                </div>
+                <div class='col card'>
+                    <div class='card-header bg-dark text-white'>
+                        <h4 class='card-title'>Client</h4>
+                    </div>
+                    <div class='card-body'>
+                        Username: test_client <br>
+                        Password: testing1234
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class='row justify-content-center'>
+            <div class='col-sm-6 card'>
+                <div class='card-header bg-dark text-white'>
+                    <h4 class='card-title'>Log In</h4>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <fieldset class='card-body form-group'>
+                        {{ form|crispy }}
+                        <div class='form-group'>
+                            <button class='btn btn-outline-info' type='submit'>Login</button>
+                            <small class='text-muted ml-2'>
+                                <a href="#">Forgot Password?</a> {# {% url 'password_reset' %} #}
+                            </small>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+        <br>
+        <div class='row justify-content-center'>
+            <div class='col card'>
+                <div class='card-header bg-dark text-white'>
+                    <h4 class='card-title'>Contact Info</h4>
+                </div>
+                <div class='card-body'>
+                    Email: louisg495@gmail.com <br>
+                    <a href="https://www.linkedin.com/in/lougeo/">LinkedIn</a> <br>
+                    <a href="https://github.com/lougeo">Github</a>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock content %}

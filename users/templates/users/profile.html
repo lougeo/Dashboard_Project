@@ -1,7 +1,7 @@
 {% extends "dashboard/base.html" %}
 {% block content %}
     <div class="card-body">
-        <div class='card-header text-white' style="background-color: #4d4d4d;">
+        <div class='card-header bg-dark text-white'>
             <h1 class='card-title'>{{ profile.first_name }} {{ profile.last_name }}</h1>
         </div>
         <div class='card-body'>
@@ -37,7 +37,7 @@
             <a class='btn btn-md btn-primary' href="{% url 'profile_update' user.profile.id %}">Update Profile</a>
             <br>
             <br>
-            <a class='btn btn-md btn-primary' href="{% url 'password_reset' %}">Change Password</a>
+            <a class='btn btn-md btn-primary' href="#">Change Password</a> {# {% url 'password_reset' %} #}
         </div>
     </div>
 {% endblock content %}

@@ -43,15 +43,19 @@ def home(request):
         card_3 = samples.filter(break_date=timezone.now().date()).count()
         
         card_titles = ['Total Completed Reports', 'Total Samples in Lab', 'Breaks Today']
-
-    
+        
+    new_request = ''
+    for i in request.GET:
+        if i != 'page':
+            val = request.GET.get(i)
+            new_request += f"&{i}={val}"
 
     # Instantiating the filter
-    myFilter = ReportFilter(request.GET, request=request, queryset=reports)
+    myFilter = ReportFilter(request.GET, request=request)
     filtered = myFilter.qs
     
     # Pagination
-    paginator = Paginator(filtered, 20)
+    paginator = Paginator(filtered, 5)
     page_number = request.GET.get('page')
     try:
         page_obj = paginator.get_page(page_number)
@@ -60,13 +64,13 @@ def home(request):
     except EmptyPage:
         page_obj = paginator.get_page(paginator.num_pages)
 
-    context = {'reports':reports,
-               'card_1':card_1,
+    context = {'card_1':card_1,
                'card_2':card_2,
                'card_3':card_3, 
                'card_titles':card_titles,
                'myFilter':myFilter,
-               'page_obj':page_obj}
+               'page_obj':page_obj,
+               'new_request':new_request}
 
     return render(request, 'dashboard/home.html', context)
 
@@ -237,6 +241,7 @@ def report_approval(request):
 
 
 ############################# MANAGE VIEWS ####################################
+
 @login_required
 def view_report_full(request, pk):
     instance = Report.objects.get(pk=pk)
@@ -313,10 +318,10 @@ def update_report_full(request, pk):
 
                     for sample in sample_forms:
                         num_samples += 1
+                        s_inst = sample.cleaned_data['id']
 
                         # Auto approving modified samples
                         if sample.has_changed() and sample.cleaned_data['result'] != None:
-                            s_inst = sample.cleaned_data['id']
                             s_inst.status = 2
                             s_inst.save()
 

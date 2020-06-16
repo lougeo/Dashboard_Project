@@ -7,6 +7,7 @@
             @page {
                 size: letter portrait;
                 margin: 2cm;
+                margin-top: 1cm;
             }
             .body {
                 font-weight: 200;
@@ -15,9 +16,9 @@
             .table {
                 width: 100%;
             }
-            table, th, td {
+            /* table, th, td {
                 border: 1px solid black;
-            }
+            } */
             th, td {
                 padding-top: 2px;
             }
@@ -51,7 +52,7 @@
         </style>
     </head>
     <body>
-        <table>
+        <table class='body'>
             <tr>
                 <td colspan="3">
                     {# Needs to be absolute path for whatever reason #}
@@ -95,6 +96,8 @@
                     </p> 
                 </td>
             </tr>
+        </table>
+        <table class='body'>
             <tr>
                 <td>
                     <p>
@@ -251,11 +254,9 @@
                     </td>
                 </tr>
             {% endfor %}
-            <tr>
-                <td colspan="10">
-                    <img src="data:image/png;base64, {{ plot_data }}" alt="Sieve Plot">
-                </td>
-            </tr>
+        </table>
+        <img src="data:image/png;base64, {{ plot_data }}" alt="Sieve Plot">
+        <table class='body'>
             <tr>
                 <td>
                     <p>
