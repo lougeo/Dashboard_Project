@@ -128,7 +128,7 @@ class ManageReportStandardForm(ModelForm):
 
 ConcreteSampleFormSet = inlineformset_factory(Report, 
                                               ConcreteSample, 
-                                              fields=('days_break', 'break_date', 'width', 'height', 'weight', 'strength', 'result'),
+                                              fields=('cast_date', 'days_break', 'width', 'height', 'weight', 'strength', 'result'),
                                               extra=0)
 
 SieveSampleFormSet = inlineformset_factory(Report, 

@@ -1,7 +1,9 @@
+from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from users.models import Profile, Project
+from .utils import is_manager
 
 
 class ReportStandard(models.Model):
@@ -99,6 +101,9 @@ class ConcreteSample(models.Model):
     def __str__(self):
         return f'{self.id}, {self.status}'
 
+    def set_break_date(self):
+        self.cast_date = self.report.date_sampled
+        self.break_date = self.cast_date + timedelta(days=self.days_break)
     
 class SieveSample(models.Model):
 
@@ -110,73 +115,76 @@ class SieveSample(models.Model):
 
     # Metrics
     wet_weight = models.DecimalField(max_digits=10, 
-                                     decimal_places=2, 
-                                     null=True, 
-                                     blank=True)
+                                     decimal_places=2)
     dry_weight = models.DecimalField(max_digits=10, 
-                                     decimal_places=2, 
-                                     null=True, 
-                                     blank=True)
+                                     decimal_places=2)
     moisture_content = models.DecimalField(max_digits=10, 
                                            decimal_places=2, 
-                                           null=True, 
                                            blank=True)
 
 
     mm_120 = models.DecimalField("120 mm", 
                                  max_digits=10, 
-                                 decimal_places=2, 
-                                 null=True, 
-                                 blank=True)
+                                 decimal_places=2)
     mm_80 = models.DecimalField("80 mm", 
                                 max_digits=10, 
-                                decimal_places=2, 
-                                null=True, 
-                                blank=True)
+                                decimal_places=2)
     mm_40 = models.DecimalField("40 mm", 
                                 max_digits=10, 
-                                decimal_places=2, 
-                                null=True, 
-                                blank=True)
+                                decimal_places=2)
     mm_20 = models.DecimalField("20 mm", 
                                 max_digits=10, 
-                                decimal_places=2, 
-                                null=True, 
-                                blank=True)
+                                decimal_places=2)
     mm_10 = models.DecimalField("10 mm", 
                                 max_digits=10, 
-                                decimal_places=2, 
-                                null=True, 
-                                blank=True)
+                                decimal_places=2)
     mm_5 = models.DecimalField("5 mm", 
                                max_digits=10, 
-                               decimal_places=2, 
-                               null=True, 
-                               blank=True)
+                               decimal_places=2)
     mm_1 = models.DecimalField("1 mm", 
                                max_digits=10, 
-                               decimal_places=2, 
-                               null=True, 
-                               blank=True)
+                               decimal_places=2)
     mm_05 = models.DecimalField("0.5 mm", 
                                 max_digits=10, 
-                                decimal_places=2, 
-                                null=True, 
-                                blank=True)
+                                decimal_places=2)
     mm_025 = models.DecimalField("0.25 mm", 
                                  max_digits=10, 
-                                 decimal_places=2, 
-                                 null=True, 
-                                 blank=True)
+                                 decimal_places=2)
     # 0:pass 1:warning 2:fail
     result = models.PositiveSmallIntegerField(choices=[(0, 'Pass'), 
                                                        (1, 'Warning'), 
                                                        (2, 'Fail')], 
-                                              null=True, 
                                               blank=True)
 
     def __str__(self):
         return f'{self.id}, {self.status}'
+
+    def set_moisture_content(self):
+        self.moisture_content = self.wet_weight - self.dry_weight
+    
+    def set_result(self, report):
+        standard = report.report_type.sieve.first()
+        print(standard)
+        if self.mm_120 < standard.min_120 or self.mm_120 > standard.max_120 or \
+           self.mm_80 < standard.min_80 or self.mm_80 > standard.max_80 or \
+           self.mm_40 < standard.min_40 or self.mm_40 > standard.max_40 or \
+           self.mm_20 < standard.min_20 or self.mm_20 > standard.max_20 or \
+           self.mm_10 < standard.min_10 or self.mm_10 > standard.max_10 or \
+           self.mm_5 < standard.min_5 or self.mm_5 > standard.max_5 or \
+           self.mm_1 < standard.min_1 or self.mm_1 > standard.max_1 or \
+           self.mm_05 < standard.min_05 or self.mm_05 > standard.max_05 or \
+           self.mm_025 < standard.min_025 or self.mm_025 > standard.max_025:
+            self.result = 2
+        else:
+            self.result = 0
+
+    def set_status(self, user):
+        if is_manager(user):
+            self.status = 2
+        else:
+            self.status = 1
+
+
 
 
 

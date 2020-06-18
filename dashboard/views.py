@@ -43,7 +43,7 @@ def home(request):
         card_3 = samples.filter(break_date=timezone.now().date()).count()
         
         card_titles = ['Total Completed Reports', 'Total Samples in Lab', 'Breaks Today']
-        
+
     new_request = ''
     for i in request.GET:
         if i != 'page':
@@ -51,7 +51,7 @@ def home(request):
             new_request += f"&{i}={val}"
 
     # Instantiating the filter
-    myFilter = ReportFilter(request.GET, request=request)
+    myFilter = ReportFilter(request.GET, request=request, queryset=reports)
     filtered = myFilter.qs
     
     # Pagination
@@ -82,31 +82,23 @@ def home(request):
 def new_report(request):
 
     if request.method == 'POST':
-
         report_form = NewReportForm(request.POST, prefix='form1')
 
         if report_form.is_valid():
-
             test_type = int(report_form.cleaned_data.get('test_type'))
             report = report_form.save(commit=False) 
 
             # Compression test
             if test_type == 0:
-
                 sample_form = NewConcreteSampleFormSet(request.POST, instance=report, prefix='form2')
-                cast_date = report_form.cleaned_data.get('date_sampled')
 
                 if sample_form.is_valid():
-
                     # Sets the cast, and break date for the sample if break day is entered
                     for sample in sample_form:
-                        if sample.cleaned_data.get('days_break') != None:
-                            break_day = sample.cleaned_data.get('days_break')
+                        if sample.has_changed():
                             sample_obj = sample.save(commit=False)
-                            sample_obj.cast_date = cast_date
-                            sample_obj.break_date = cast_date + timedelta(days=break_day)
-                        else:
-                            continue
+                            sample_obj.set_break_date()
+
                     report.save()
                     sample_form.save()
                     
@@ -119,22 +111,18 @@ def new_report(request):
                 sample_form = NewSieveSampleFormSet(request.POST, instance=report, prefix='form2')
 
                 if sample_form.is_valid():
-                
-                    # THIS NEEDS TO BE UPGRADED
+                    # print(samples)
+
                     for sample in sample_form:
-
-                        wet_weight = sample.cleaned_data.get('wet_weight')
-                        dry_weight = sample.cleaned_data.get('dry_weight')
-
-                        if wet_weight != None and dry_weight != None:
-
+                        if sample.has_changed():
                             sample_obj = sample.save(commit=False)
-                            sample_obj.moisture_content = wet_weight - dry_weight
-                            # Add conditional setting result
-                            # Add conditional setting status based on Manager/Technician
-                    
+                            sample_obj.set_moisture_content()
+                            sample_obj.set_result(report)
+                            sample_obj.set_status(request.user)
+
                     report.save()
-                    sample_form.save()
+                    samples = sample_form.save()
+                    
 
                     # Flash message and redirect
                     messages.success(request, f'Report {report.id}, Created for {report.project_name}')
@@ -369,7 +357,6 @@ def update_report_full(request, pk):
     
     return render(request, f'dashboard/update_report_full_{report_type_name}.html', context)
 
-############################## MANAGE VIEWS ######################################
 
 @login_required
 @user_passes_test(is_manager)

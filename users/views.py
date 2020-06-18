@@ -10,21 +10,28 @@ from dashboard.utils import is_manager
 @user_passes_test(is_manager)
 def register(request):
     if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
-        if form.is_valid():
+        form = UserRegisterForm(request.POST, prefix='form1')
+        profile_form = ProfileForm(request.POST, prefix='form2')
+
+        if form.is_valid() and profile_form.is_valid():
             username = form.cleaned_data.get('username')
             new_user = form.save()
-            pk = Profile.objects.get(user__username=username).id
-            
+
+            profile_form = ProfileForm(request.POST, instance=new_user.profile, prefix='form2')
+
+            profile_form.save()
+
             # This seems like a janky solution to update the group
             group = form.cleaned_data['group']
             group.user_set.add(new_user)
 
             messages.success(request, f'Account created for {username}')
             return redirect('register')
-    else:
-        form = UserRegisterForm()
-    return render(request, 'users/register.html', {'form':form})
+  
+    form = UserRegisterForm(prefix='form1')
+    profile_form = ProfileForm(prefix='form2')
+
+    return render(request, 'users/register.html', {'form':form, 'profile_form':profile_form})
 
 @login_required
 def profile(request):
