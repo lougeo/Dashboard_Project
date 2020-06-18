@@ -91,6 +91,9 @@
                     </div>
                 </div>
                 {% for sample in sample_forms %}
+                    {% for hidden in sample.hidden_fields %}
+                        {{ sample.id }}
+                    {% endfor %}
                     <div class='col'>
                         <div class='row'>
                             {{ sample.process_day|as_crispy_field }}

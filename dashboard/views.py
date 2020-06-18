@@ -97,7 +97,7 @@ def new_report(request):
                     for sample in sample_form:
                         if sample.has_changed():
                             sample_obj = sample.save(commit=False)
-                            sample_obj.set_break_date()
+                            sample_obj.set_break_date_new()
 
                     report.save()
                     sample_form.save()
@@ -120,8 +120,11 @@ def new_report(request):
                             sample_obj.set_result(report)
                             sample_obj.set_status(request.user)
 
+                    
                     report.save()
-                    samples = sample_form.save()
+                    sample_form.save()
+                    report.mark_complete()
+                    report.save()
                     
 
                     # Flash message and redirect
@@ -274,16 +277,17 @@ def update_report_full(request, pk):
     report_type_id = instance.report_type.standard_type
 
     if request.method == 'POST':
-        print(request.POST)
 
         # Checks which button is clicked
         # Updates report and samples
         if 'update' in request.POST:
             report_form = FullReportUpdateForm(request.POST, prefix='form1', instance=instance)
-            sample_forms = ConcreteSampleFormSet(request.POST, prefix='form2', instance=instance)
             project_form = ProjectManagerForm(request.POST, prefix='form3', instance=instance.project_name)
+            if report_type_id == 0:
+                sample_forms = ConcreteSampleFormSet(request.POST, prefix='form2', instance=instance)
+            elif report_type_id == 1:
+                sample_forms = SieveSampleFormSet(request.POST, prefix='form2', instance=instance)
             
-
             # If any of the 3 form save conditions execute, redirects to home page and flashes message
             if (report_form.is_valid() and report_form.has_changed()) or \
                (sample_forms.is_valid() and sample_forms.has_changed()) or \
@@ -293,36 +297,31 @@ def update_report_full(request, pk):
                 if report_form.is_valid() and report_form.has_changed():
                     report_form.save()
                 if sample_forms.is_valid() and sample_forms.has_changed():
-                    sample_forms.save()
+                    samples = sample_forms.save(commit=False)
+                    for sample in samples:
+                        if report_type_id == 0:
+                            sample.set_break_date_update()
+                            sample.mark_complete(request.user)
+                        elif report_type_id == 1:
+                            if sample.moisture_content == None:
+                                sample.set_moisture_content()
+                            if sample.result == None:
+                                sample.set_result()
+                            sample.set_status(request.user)
+                        sample.save()
                 if project_form.is_valid() and project_form.has_changed():
                     project_form.save()
-
+                
                 # Checking, and marking if report is now complete
-                # This should be made slightly more comprehensive
-                # Maybe a form checkbox "mark as complete"
-                if sample_forms.is_valid():
-                    num_samples = 0
-                    num_complete = 0
+                instance.mark_complete()
+                instance.save()
 
-                    for sample in sample_forms:
-                        num_samples += 1
-                        s_inst = sample.cleaned_data['id']
+                if instance.status == 1:
+                    is_complete = ", and is now COMPLETE"
+                else:
+                    is_complete = ""
 
-                        # Auto approving modified samples
-                        if sample.has_changed() and sample.cleaned_data['result'] != None:
-                            s_inst.status = 2
-                            s_inst.save()
-
-                        if s_inst.status == 2: #sample.cleaned_data['id'].status == 2
-                            num_complete += 1
-                    print(f'numsamples: {num_samples}')
-                    print(f'numcomplete: {num_complete}')
-                    if num_samples == num_complete:
-                        instance.status = 1
-                        instance.save()
-
-
-                messages.success(request, f'Report Updated for: {instance}')
+                messages.success(request, f'Report Updated for: {instance}{is_complete}')
                 return redirect('home')
 
             # Case where submit is pressed but nothing has changed

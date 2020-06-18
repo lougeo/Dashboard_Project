@@ -63,6 +63,19 @@ class Report(models.Model):
     def __str__(self):
         return f'Project: {self.project_name}, Report Type: {self.report_type}, ID: {self.id}'
 
+    def mark_complete(self):
+        if self.report_type.standard_type == 0:
+            samples = self.concrete_samples.all()
+        elif self.report_type.standard_type == 1:
+            samples = self.sieve_samples.all()
+        total = 0
+        complete = 0
+        for sample in samples:
+            total += 1
+            if sample.status == 2:
+                complete += 1
+        if total > 0 and total == complete:
+            self.status = 1
 
 class ConcreteSample(models.Model):
 
@@ -101,9 +114,25 @@ class ConcreteSample(models.Model):
     def __str__(self):
         return f'{self.id}, {self.status}'
 
-    def set_break_date(self):
+    def set_break_date_new(self):
         self.cast_date = self.report.date_sampled
         self.break_date = self.cast_date + timedelta(days=self.days_break)
+    
+    def set_break_date_update(self):
+        self.break_date = self.cast_date + timedelta(days=self.days_break)
+    
+    # This only changes the status if the sample is complete, as oppossed to if only some fields are modified.
+    def mark_complete(self, user):
+        if self.width != None and \
+           self.height != None and \
+           self.weight != None and \
+           self.strength != None and \
+           self.result != None:
+            if is_manager(user):
+                self.status = 2
+            else:
+                self.status = 1            
+
     
 class SieveSample(models.Model):
 
@@ -183,38 +212,3 @@ class SieveSample(models.Model):
             self.status = 2
         else:
             self.status = 1
-
-
-
-
-
-# class ConcreteReport(models.Model):
-#     # 0:incomplete 1:complete
-#     status = models.PositiveSmallIntegerField(default=0)
-
-#     # Need an ID tag that counts starting at 1 for each project
-#     project_name = models.ForeignKey(Project, on_delete=models.CASCADE) # Change to PROTECT
-#     technician = models.ForeignKey(User, on_delete=models.CASCADE, null=True, limit_choices_to={'groups__name':'Manager', 'groups__name':'Technician'}) # Figure out why it wont let me include both, also change to PROTECT
-#     date_received = models.DateField(default=timezone.now)
-#     date_cast = models.DateField(default=timezone.now) 
-    
-#     def __str__(self):
-#         return f'{self.project_name}, {self.id}'
-
-
-# class SieveReport(models.Model):
-#     # 0:incomplete 1:complete
-#     status = models.PositiveSmallIntegerField(default=0)
-
-#     # Need an ID tag that counts starting at 1 for each project
-#     project_name = models.ForeignKey(Project, on_delete=models.CASCADE) # Change to PROTECT
-#     technician = models.ForeignKey(User, on_delete=models.CASCADE, null=True, limit_choices_to={'groups__name':'Manager', 'groups__name':'Technician'}) # Figure out why it wont let me include both, also change to PROTECT
-#     date_received = models.DateField(default=timezone.now)
-#     date_sampled = models.DateField(default=timezone.now) 
-#     agg_type = models.PositiveSmallIntegerField("Aggregate Type",
-#                                                 choices=[(0, 'Coarse'),
-#                                                          (1, 'Fine')])
-
-
-#     def __str__(self):
-#         return f'{self.project_name}, {self.id}'
