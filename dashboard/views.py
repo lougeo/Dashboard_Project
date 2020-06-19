@@ -80,7 +80,6 @@ def home(request):
 @login_required
 @user_passes_test(is_employee)
 def new_report(request):
-
     if request.method == 'POST':
         report_form = NewReportForm(request.POST, prefix='form1')
 
@@ -111,8 +110,6 @@ def new_report(request):
                 sample_form = NewSieveSampleFormSet(request.POST, instance=report, prefix='form2')
 
                 if sample_form.is_valid():
-                    # print(samples)
-
                     for sample in sample_form:
                         if sample.has_changed():
                             sample_obj = sample.save(commit=False)
@@ -120,12 +117,10 @@ def new_report(request):
                             sample_obj.set_result(report)
                             sample_obj.set_status(request.user)
 
-                    
                     report.save()
                     sample_form.save()
                     report.mark_complete()
                     report.save()
-                    
 
                     # Flash message and redirect
                     messages.success(request, f'Report {report.id}, Created for {report.project_name}')
@@ -187,15 +182,9 @@ def lab_update_sample(request, pk):
         form = UpdateSampleForm(request.POST, instance=instance)
         if form.is_valid():
             form.save()
-            # This is to set the color on the approvals page, needs to be reimagined to be more dynamic, and also validate upon submission - triggering a popup confirm page if warning or fail
-            if instance.strength > 55:
-                instance.result = 0
-            elif instance.strength < 50:
-                instance.result = 2
-            else:
-                instance.result = 1
             
-            instance.status = 1
+            instance.set_result()
+            instance.mark_complete(request.user)
             instance.save()
             messages.success(request, f'Report Updated for {instance}')
             return redirect('lab_update_sample_list')
@@ -209,26 +198,31 @@ def lab_update_sample(request, pk):
 @user_passes_test(is_manager)
 def report_approval(request):
     if request.method == 'POST':
+        print(request.POST)
         form = SampleSelectorForm(request.POST)
         if form.is_valid():
             pk = form.cleaned_data.get('id')
             instance = ConcreteSample.objects.get(pk=pk)
+            report = instance.report
+
             instance.status = 2
-            
-            # Checks if there are any remaining samples and marks report complete if not
-            if ConcreteSample.objects.filter(report=instance.report).filter(Q(status=0) | Q(status=1)).exists() == True:
-                main_report = Report.objects.get(id=instance.report.id)
-                main_report.status = 1
-                main_report.save()
+            report.mark_complete()
 
             instance.save()
-            # Updated list returned
-            reports = ConcreteSample.objects.filter(status=1)
-            return render(request, 'dashboard/report_approval.html', {'reports':reports})
-    else:
-        form = SampleSelectorForm()
-        reports = ConcreteSample.objects.filter(status=1)
-    return render(request, 'dashboard/report_approval.html', {'reports':reports, 'form':form})
+            report.save()
+            return redirect('report_approval')
+    
+    comp_samples = ConcreteSample.objects.filter(status=1)
+    sieve_samples = SieveSample.objects.filter(status=1)
+
+    form = SampleSelectorForm()
+
+    context = {
+        'form':form,
+        'comp_samples':comp_samples,
+        'sieve_samples':sieve_samples
+    }
+    return render(request, 'dashboard/lab_report_approval.html', context)
 
 
 ############################# MANAGE VIEWS ####################################
@@ -269,7 +263,7 @@ def view_report_full(request, pk):
 
     return render(request, f'dashboard/view_report_full_{report_type_name}.html', context)
 
-# Update full concrete report
+# Update full report
 @login_required
 @user_passes_test(is_employee)
 def update_report_full(request, pk):
@@ -282,7 +276,6 @@ def update_report_full(request, pk):
         # Updates report and samples
         if 'update' in request.POST:
             report_form = FullReportUpdateForm(request.POST, prefix='form1', instance=instance)
-            project_form = ProjectManagerForm(request.POST, prefix='form3', instance=instance.project_name)
             if report_type_id == 0:
                 sample_forms = ConcreteSampleFormSet(request.POST, prefix='form2', instance=instance)
             elif report_type_id == 1:
@@ -290,8 +283,7 @@ def update_report_full(request, pk):
             
             # If any of the 3 form save conditions execute, redirects to home page and flashes message
             if (report_form.is_valid() and report_form.has_changed()) or \
-               (sample_forms.is_valid() and sample_forms.has_changed()) or \
-               (project_form.is_valid() and project_form.has_changed()):
+               (sample_forms.is_valid() and sample_forms.has_changed()):
 
                 # Saving the various forms
                 if report_form.is_valid() and report_form.has_changed():
@@ -309,8 +301,6 @@ def update_report_full(request, pk):
                                 sample.set_result()
                             sample.set_status(request.user)
                         sample.save()
-                if project_form.is_valid() and project_form.has_changed():
-                    project_form.save()
                 
                 # Checking, and marking if report is now complete
                 instance.mark_complete()
@@ -346,12 +336,10 @@ def update_report_full(request, pk):
         sample_forms = SieveSampleFormSet(instance=instance, prefix='form2')
 
     report_form = FullReportUpdateForm(instance=instance, prefix='form1')
-    project_form = ProjectManagerForm(instance=instance.project_name, prefix='form3')
 
     context = {
         'report_form':report_form, 
         'sample_forms':sample_forms,
-        'project_form':project_form
         }
     
     return render(request, f'dashboard/update_report_full_{report_type_name}.html', context)
@@ -375,7 +363,6 @@ def manage_list(request, mtype):
 @user_passes_test(is_manager)
 def manage_update(request, pk, mtype):
     if request.method == "POST":
-        print(request.POST)
         if mtype == 'standard':
             instance = ReportStandard.objects.get(pk=pk)
             standard_form = ManageReportStandardForm(request.POST, instance=instance, prefix='form1')
@@ -544,6 +531,9 @@ def DownloadPDF(request, pk):
     response['Content-Disposition'] = content
     return response
 
+
+############################# AJAX VIEWS ####################################
+
 # Generate Sieve Plot
 @login_required
 def SievePlotGenerator(request):
@@ -554,10 +544,8 @@ def SievePlotGenerator(request):
 
     plot_data = plot_sieve_report(data)
 
-    return render(request, 'dashboard/sieve_plot_insert.html', {'plot_data':plot_data})
+    return render(request, 'dashboard/ajax_sieve_plot_insert.html', {'plot_data':plot_data})
 
-
-############################# AJAX VIEWS ####################################
 
 @login_required
 @user_passes_test(is_employee)
@@ -567,7 +555,7 @@ def load_standards(request):
         standards = ReportStandard.objects.filter(standard_type=standard_id)
     else:
         standards = ReportStandard.objects.none()
-    return render(request, 'dashboard/dropdown_list_standards.html', {'standards':standards})
+    return render(request, 'dashboard/ajax_dropdown_list_standards.html', {'standards':standards})
 
 
 @login_required
@@ -578,7 +566,7 @@ def load_projects(request):
         projects = Project.objects.filter(company__id=client_id)
     else:
         projects = Project.objects.none()
-    return render(request, 'dashboard/dropdown_list_projects.html', {'projects':projects})
+    return render(request, 'dashboard/ajax_dropdown_list_projects.html', {'projects':projects})
 
 
 @login_required

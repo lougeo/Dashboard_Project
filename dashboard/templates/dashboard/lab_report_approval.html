@@ -1,0 +1,53 @@
+{% extends "dashboard/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class='container'>
+        <h1 class='border-bottom pt-2'>Approvals</h1>
+        <h3 class='border-bottom pt-4'>Compression Tests</h3>
+        <table class="table">
+            <tr>
+                <th>Project</th>
+                <th>ID</th>
+                <th>Cutoff</th>
+                <th>Strength</th>
+                <th>Update</th>
+                <th>Approve</th>
+            </tr>
+            {% for sample in comp_samples %}
+                <tr>
+                    <td>{{ sample.report.project_name }}</td>
+                    <td>{{ sample.id }}</td>
+                    <td>{{ sample.report.report_type.compression.first.cutoff }}</td>
+                    {% if sample.result == 1 %}
+                        <td style="background-color:green;">{{ sample.strength }}</td>
+                    {# {% elif sample.strength < sample.report.report_type.compression.first.cutoff * 1.1 %} #}
+                        <!-- <td style="background-color: yellow;">{{ sample.strength }}</td> -->
+                    {% else %}
+                        <td style="background-color: red;">{{ sample.strength }}</td>
+                    {% endif %}
+                    <td><a class="btn btn-sm btn-info" href="{% url 'lab_update_sample' sample.id %}">Update</a></td>
+                    <td>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{ sample.id }}">
+                            <button class='btn btn-sm btn-success' type='submit'>Approve</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <h3 class='border-bottom pt-4'>Sieve Tests</h3>
+        <table class="table">
+            <tr>
+                <th>Project</th>
+                <th>ID</th>
+            </tr>
+            {% for sample in sieve_samples %}
+                <tr>
+                    <td>{{ sample.report.project_name }}</td>
+                    <td>{{ sample.id }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock content %}

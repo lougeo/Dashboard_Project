@@ -16,7 +16,7 @@
                 <td>{{ instance.report.project_name }}</td>
                 <td>{{ instance.report.id }}</td>
                 <td>{{ instance.id }}</td>
-                <td>{{ instance.cast_day }}</td>
+                <td>{{ instance.cast_date }}</td>
             </tr>
         </table>
         <br>
@@ -37,9 +37,9 @@
                     {{ form.confirm }}
                 {% else %}
                     {% if 'Warning' in form.non_field_errors.as_text %}
-                        <div class="alert alert-danger">{{ form.non_field_errors.as_text }}</div>
+                        <div class="alert alert-danger">{{ form.non_field_errors.as_text|linebreaks }}</div>
                     {% elif 'Caution' in form.non_field_errors.as_text %}
-                        <div class="alert alert-warning">{{ form.non_field_errors.as_text }}</div>
+                        <div class="alert alert-warning">{{ form.non_field_errors.as_text|linebreaks }}</div>
                     {% endif %}
                     
                     {{ form.confirm|as_crispy_field }}

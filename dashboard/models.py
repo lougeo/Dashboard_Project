@@ -61,7 +61,7 @@ class Report(models.Model):
     date_sampled = models.DateField(default=timezone.now) 
 
     def __str__(self):
-        return f'Project: {self.project_name}, Report Type: {self.report_type}, ID: {self.id}'
+        return f'Project: {self.project_name}, ID: {self.id}'
 
     def mark_complete(self):
         if self.report_type.standard_type == 0:
@@ -105,9 +105,7 @@ class ConcreteSample(models.Model):
                                    null=True, 
                                    blank=True)
     # 0:pass 1:warning 2:fail
-    result = models.PositiveSmallIntegerField(choices=[(0, 'Pass'), 
-                                                       (1, 'Warning'), 
-                                                       (2, 'Fail')], 
+    result = models.PositiveSmallIntegerField(choices=[(0, 'Fail'), (1, 'Pass')], 
                                               null=True, 
                                               blank=True)
 
@@ -120,6 +118,14 @@ class ConcreteSample(models.Model):
     
     def set_break_date_update(self):
         self.break_date = self.cast_date + timedelta(days=self.days_break)
+
+    def set_result(self):
+        cutoff = self.report.report_type.compression.first().cutoff
+        print(cutoff)
+        if self.strength < cutoff:
+            self.result = 0
+        else:
+            self.result = 1
     
     # This only changes the status if the sample is complete, as oppossed to if only some fields are modified.
     def mark_complete(self, user):
@@ -180,9 +186,7 @@ class SieveSample(models.Model):
                                  max_digits=10, 
                                  decimal_places=2)
     # 0:pass 1:warning 2:fail
-    result = models.PositiveSmallIntegerField(choices=[(0, 'Pass'), 
-                                                       (1, 'Warning'), 
-                                                       (2, 'Fail')], 
+    result = models.PositiveSmallIntegerField(choices=[(0, 'Fail'), (1, 'Pass')], 
                                               blank=True)
 
     def __str__(self):
@@ -203,9 +207,9 @@ class SieveSample(models.Model):
            self.mm_1 < standard.min_1 or self.mm_1 > standard.max_1 or \
            self.mm_05 < standard.min_05 or self.mm_05 > standard.max_05 or \
            self.mm_025 < standard.min_025 or self.mm_025 > standard.max_025:
-            self.result = 2
-        else:
             self.result = 0
+        else:
+            self.result = 1
 
     def set_status(self, user):
         if is_manager(user):

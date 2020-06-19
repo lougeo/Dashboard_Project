@@ -6,22 +6,10 @@
         {% csrf_token %}
         <div class='container p-3 my-3 border'>
             <div class='row border-bottom'>
-                <div class='col-8'>
+                <div class='col-6'>
                     <p>
                         <img src="{% static 'dashboard/generic_logo.png' %}">
                         <br>
-                    </p>
-                </div>
-                <div class='col-4'>
-                    <p>
-                        {{ project_form.office|as_crispy_field}}
-                    </p>
-                </div>
-            </div>
-            <div class='row'>
-                <div class='col-6'>
-                    <p>
-                        {{ project_form.company|as_crispy_field }}
                     </p>
                 </div>
                 <div class='col-3'>
@@ -41,7 +29,6 @@
                     </p> 
                 </div>
             </div>
-            <hr>
             <div class='row'>
                 <div id='form_set'>
                     {{ sample_forms.management_form }}

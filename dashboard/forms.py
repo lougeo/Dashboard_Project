@@ -1,9 +1,10 @@
 from django import forms
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.forms import ModelForm, inlineformset_factory
 from .models import *
 from users.models import *
-
+from decimal import Decimal
 
 ########################### NEW REPORT FORM #####################################
 
@@ -68,7 +69,8 @@ class FullReportUpdateForm(ModelForm):
         model = Report
         exclude = ['status', 'report_type']
     
-    # This sets the project querset to only allow selection of that clients projects
+    # This sets the project querset to only allow selection of that clients projects.
+    # Might not want it like this, might want to have access to all projects here.
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['project_name'].queryset = Project.objects.filter(company=self.instance.project_name.company)
@@ -82,27 +84,28 @@ class ProjectManagerForm(ModelForm):
 ############################# LAB FORMS ###########################################
 
 class UpdateSampleForm(ModelForm):
-    confirm = forms.BooleanField(initial=False, required=False, widget=forms.HiddenInput)
+    confirm = forms.BooleanField(initial=False, required=False, widget=forms.HiddenInput, label="Continue")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        CONFIRM_MSG = {1:"Warning: Failure", 2:"Caution: Near Failure"}
-        confirm_set = set(CONFIRM_MSG.values())
-        if confirm_set.intersection(self.non_field_errors()):
-            self.fields['confirm'].widget = forms.CheckboxInput()
+        if self.errors:
+            for error in self.errors['__all__'].as_data():
+                if error.code == 'below-cutoff':
+                    self.fields['confirm'].widget = forms.CheckboxInput()
 
     def clean(self):
         super().clean()
-        CONFIRM_MSG = {1:"Warning: Failure", 2:"Caution: Near Failure"}
         if 'confirm' in self.cleaned_data and not self.cleaned_data['confirm']:
             if 'strength' in self.cleaned_data:
-
                 value = self.cleaned_data['strength']
-                # Change 50 to model value - create model for fail points
-                if value < 50:
-                    self.add_error(None, forms.ValidationError(CONFIRM_MSG[1]))
-                elif value < 55:
-                    self.add_error(None, forms.ValidationError(CONFIRM_MSG[2]))
+                cutoff = self.instance.report.report_type.compression.first().cutoff
+                CONFIRM_MSG = {1:mark_safe(f"Warning: Failure \n* Cutoff: {cutoff}"), 
+                               2:mark_safe(f"Caution: Near Failure \n* Cutoff: {cutoff}")}
+
+                if value < cutoff:
+                    self.add_error(None, forms.ValidationError(CONFIRM_MSG[1], code='below-cutoff'))
+                elif value < (cutoff * Decimal(1.1)):
+                    self.add_error(None, forms.ValidationError(CONFIRM_MSG[2], code='below-cutoff'))
 
     class Meta:
         model = ConcreteSample
