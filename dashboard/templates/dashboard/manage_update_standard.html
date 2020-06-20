@@ -10,12 +10,73 @@
             <form method='POST'>
                 {% csrf_token %}
                 <div class='row'>
-                    <div class='col'>
+                    <div class='col-4'>
                         {{ standard_form|crispy }}
                     </div>
-                    <div class='col'>
-                        {{ parameter_form|crispy }}
-                    </div>
+                    {% if 'cutoff' in parameter_form.fields %}
+                        <div class='col-4'>
+                            {{ parameter_form|crispy }}
+                        </div>
+                    {% else %}
+                        <div class='col-4'>
+                            <div class='row'>
+                                {{ parameter_form.min_120|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.min_80|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.min_40|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.min_20|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.min_10|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.min_5|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.min_1|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.min_05|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.min_025|as_crispy_field }}
+                            </div>
+                        </div>
+                        <div class='col-4'>
+                            <div class='row'>
+                                {{ parameter_form.max_120|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.max_80|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.max_40|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.max_20|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.max_10|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.max_5|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.max_1|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.max_05|as_crispy_field }}
+                            </div>
+                            <div class='row'>
+                                {{ parameter_form.max_025|as_crispy_field }}
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class='row'>
                     <div class='col' >

@@ -49,11 +49,13 @@ def render_to_pdf(template_src, context_dict={}):
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
 
-def plot_sieve_report(data):
+def plot_sieve_report(test_data, min_bounds, max_bounds):
     # Generate plot
     fig = Figure()
     ax = fig.subplots()
-    ax.plot(data)
+    ax.plot(test_data, color='blue')
+    ax.plot(min_bounds, color='red')
+    ax.plot(max_bounds, color='red')
     ax.set_title("Sieve Analysis")
     ax.set_ylabel("Percent Passing")
     ax.set_xlabel("Sieve Number")

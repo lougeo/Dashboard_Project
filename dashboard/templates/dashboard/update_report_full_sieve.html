@@ -197,6 +197,8 @@
     <script>
         $('#generate_plot').click(function() {
             var url = $("#reportForm").attr("data-plot-url");
+            var sample_id = $("#id_form2-0-id").val();
+            console.log(sample_id);
             var plot_data = [
                 {value: $('#id_form2-0-mm_120').val()},
                 {value: $('#id_form2-0-mm_80').val()},
@@ -210,7 +212,8 @@
             $.ajax({
                 url: url,
                 data: {
-                    'plot_data': plot_data
+                    'plot_data': plot_data,
+                    'sample_id': sample_id
                 },
             success: function(data) {
                 $("#plot_area").html(data);

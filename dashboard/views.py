@@ -243,17 +243,8 @@ def view_report_full(request, pk):
         report_type_name = 'sieve'
         samples = instance.sieve_samples.all()
         sample = instance.sieve_samples.first()
-        data = [
-            sample.mm_120,
-            sample.mm_80,
-            sample.mm_40,
-            sample.mm_20,
-            sample.mm_10,
-            sample.mm_5,
-            sample.mm_1,
-            sample.mm_05,
-            sample.mm_025]
-        plot_data = plot_sieve_report(data)
+        test_data, min_bounds, max_bounds = sample.prep_plot()
+        plot_data = plot_sieve_report(test_data, min_bounds, max_bounds)
         context = {
             'instance':instance, 
             'samples':samples,
@@ -469,17 +460,8 @@ def ViewPDF(request, pk):
         report_type_name = 'sieve'
         samples = instance.sieve_samples.all()
         sample = instance.sieve_samples.first()
-        data = [
-            sample.mm_120,
-            sample.mm_80,
-            sample.mm_40,
-            sample.mm_20,
-            sample.mm_10,
-            sample.mm_5,
-            sample.mm_1,
-            sample.mm_05,
-            sample.mm_025]
-        plot_data = plot_sieve_report(data)
+        test_data, min_bounds, max_bounds = sample.prep_plot()
+        plot_data = plot_sieve_report(test_data, min_bounds, max_bounds)
         context = {
             'instance':instance,
             'samples':samples,
@@ -508,17 +490,8 @@ def DownloadPDF(request, pk):
         report_type_name = 'sieve'
         samples = instance.sieve_samples.all()
         sample = instance.sieve_samples.first()
-        data = [
-            sample.mm_120,
-            sample.mm_80,
-            sample.mm_40,
-            sample.mm_20,
-            sample.mm_10,
-            sample.mm_5,
-            sample.mm_1,
-            sample.mm_05,
-            sample.mm_025]
-        plot_data = plot_sieve_report(data)
+        test_data, min_bounds, max_bounds = sample.prep_plot()
+        plot_data = plot_sieve_report(test_data, min_bounds, max_bounds)
         context = {
             'instance':instance,
             'samples':samples,
@@ -537,12 +510,22 @@ def DownloadPDF(request, pk):
 # Generate Sieve Plot
 @login_required
 def SievePlotGenerator(request):
+    # This is for handling the request from new report and update report
+    if 'sample_id' in request.GET:
+        sample_id = request.GET.get('sample_id')
+        sample = SieveSample.objects.get(id=sample_id)
+        min_bounds, max_bounds = sample.prep_plot_bounds()
+    elif 'standard_id' in request.GET:
+        standard_id = request.GET.get('standard_id')
+        standard = ReportStandard.objects.get(id=standard_id)
+        min_bounds, max_bounds = standard.prep_plot_bounds()
 
-    data = []
+    test_data = []
     for i in request.GET:
-        data.append(float(request.GET.get(i)))
+        if i != 'sample_id' and i != 'standard_id':
+            test_data.append(float(request.GET.get(i)))
 
-    plot_data = plot_sieve_report(data)
+    plot_data = plot_sieve_report(test_data, min_bounds, max_bounds)
 
     return render(request, 'dashboard/ajax_sieve_plot_insert.html', {'plot_data':plot_data})
 

@@ -13,6 +13,32 @@ class ReportStandard(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def prep_plot_bounds(self):
+        standard = self.sieve.first()
+        min_bounds = [
+            standard.min_120,
+            standard.min_80,
+            standard.min_40,
+            standard.min_20,
+            standard.min_10,
+            standard.min_5,
+            standard.min_1,
+            standard.min_05,
+            standard.min_025
+        ]
+        max_bounds = [
+            standard.max_120,
+            standard.max_80,
+            standard.max_40,
+            standard.max_20,
+            standard.max_10,
+            standard.max_5,
+            standard.max_1,
+            standard.max_05,
+            standard.max_025
+        ]
+        return min_bounds, max_bounds
 
 class ReportStandardParametersCompression(models.Model):
     standard = models.ForeignKey(ReportStandard, on_delete=models.CASCADE, related_name='compression')
@@ -104,7 +130,7 @@ class ConcreteSample(models.Model):
                                    decimal_places=2, 
                                    null=True, 
                                    blank=True)
-    # 0:pass 1:warning 2:fail
+
     result = models.PositiveSmallIntegerField(choices=[(0, 'Fail'), (1, 'Pass')], 
                                               null=True, 
                                               blank=True)
@@ -185,7 +211,7 @@ class SieveSample(models.Model):
     mm_025 = models.DecimalField("0.25 mm", 
                                  max_digits=10, 
                                  decimal_places=2)
-    # 0:pass 1:warning 2:fail
+    
     result = models.PositiveSmallIntegerField(choices=[(0, 'Fail'), (1, 'Pass')], 
                                               blank=True)
 
@@ -216,3 +242,66 @@ class SieveSample(models.Model):
             self.status = 2
         else:
             self.status = 1
+    
+    def prep_plot(self):
+        standard = self.report.report_type.sieve.first()
+        test_data = [
+            self.mm_120,
+            self.mm_80,
+            self.mm_40,
+            self.mm_20,
+            self.mm_10,
+            self.mm_5,
+            self.mm_1,
+            self.mm_05,
+            self.mm_025
+        ]
+        min_bounds = [
+            standard.min_120,
+            standard.min_80,
+            standard.min_40,
+            standard.min_20,
+            standard.min_10,
+            standard.min_5,
+            standard.min_1,
+            standard.min_05,
+            standard.min_025
+        ]
+        max_bounds = [
+            standard.max_120,
+            standard.max_80,
+            standard.max_40,
+            standard.max_20,
+            standard.max_10,
+            standard.max_5,
+            standard.max_1,
+            standard.max_05,
+            standard.max_025
+        ]
+        return test_data, min_bounds, max_bounds
+
+    def prep_plot_bounds(self):
+        standard = self.report.report_type.sieve.first()
+        min_bounds = [
+            standard.min_120,
+            standard.min_80,
+            standard.min_40,
+            standard.min_20,
+            standard.min_10,
+            standard.min_5,
+            standard.min_1,
+            standard.min_05,
+            standard.min_025
+        ]
+        max_bounds = [
+            standard.max_120,
+            standard.max_80,
+            standard.max_40,
+            standard.max_20,
+            standard.max_10,
+            standard.max_5,
+            standard.max_1,
+            standard.max_05,
+            standard.max_025
+        ]
+        return min_bounds, max_bounds
