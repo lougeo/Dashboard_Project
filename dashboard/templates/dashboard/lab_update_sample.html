@@ -3,7 +3,9 @@
 {% block content %}
     <div class='container'>
         <br>
-        <h3>Sample Identification</h3>
+        <div class='card-header bg-dark text-white'>
+            <h3 class='card-title'>Sample Identification</h3>
+        </div>
         <br>
         <table class="table">
             <tr>
@@ -20,7 +22,9 @@
             </tr>
         </table>
         <br>
-        <h3>Update Sample</h3>
+        <div class='card-header bg-dark text-white'>
+            <h3 class='card-title'>Update Sample</h3>
+        </div>
         <br>
         <form method="POST">
             {% csrf_token %}

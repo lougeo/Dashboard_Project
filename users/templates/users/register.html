@@ -2,10 +2,14 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class='container'>
+        <br>
+        <div class='card-header bg-dark text-white'>
+            <h2 class='card-title'>New User</h2>
+        </div>
+        <br>
         <form method="POST">
             {% csrf_token %}
             <fieldset class='form-group'>
-                <legend class='border-bottom mb-4'>Add User</legend>
                 {% for hidden in form.hidden_fields %}
                     {{ form.id }}
                 {% endfor %}

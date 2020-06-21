@@ -2,12 +2,16 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class='container'>
+        <br>
+        <div class='card-header bg-dark text-white'>
+            <h2 class='card-title'>New Report</h2>
+        </div>
+        <br>
         <form method="POST" id="reportForm" data-standards-url="{% url 'ajax_load_standards' %}" data-projects-url="{% url 'ajax_load_projects' %}" data-formset-url="{% url 'ajax_load_sample_formset' %}" data-plot-url="{% url 'ajax_sieve_plot_generator' %}">
             {% csrf_token %}
             <fieldset class='form-group'>
                 <div class='row'>
                     <div class='col'>
-                        <legend class='border-bottom mb-4'>New Report</legend>
                         {{ form|crispy }}
                     </div>
                     <div class='col' id="formset_area"></div>

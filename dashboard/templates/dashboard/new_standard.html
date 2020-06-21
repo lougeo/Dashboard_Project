@@ -2,10 +2,14 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <div class='container'>
+        <br>
+        <div class='card-header bg-dark text-white'>
+            <h2 class='card-title'>New Standard</h2>
+        </div>
+        <br>
         <form method="POST" id="standardForm" data-form-url="{% url 'ajax_load_parameter_form' %}">
             {% csrf_token %}
             <fieldset class='form-group'>
-                <legend class='border-bottom mb-4'>New Standard</legend>
                 {{ form|crispy }}
                 <div id="form2_area"></div>
                 <div>
