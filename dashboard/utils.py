@@ -53,9 +53,10 @@ def plot_sieve_report(test_data, min_bounds, max_bounds):
     # Generate plot
     fig = Figure()
     ax = fig.subplots()
-    ax.plot(test_data, color='blue')
-    ax.plot(min_bounds, color='red')
+    ax.plot(test_data, color='blue', label='Test Data')
+    ax.plot(min_bounds, color='red', label='Bounds')
     ax.plot(max_bounds, color='red')
+    ax.legend()
     ax.set_title("Sieve Analysis")
     ax.set_ylabel("Percent Passing")
     ax.set_xlabel("Sieve Number")

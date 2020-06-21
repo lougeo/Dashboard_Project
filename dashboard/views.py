@@ -198,17 +198,18 @@ def lab_update_sample(request, pk):
 @user_passes_test(is_manager)
 def report_approval(request):
     if request.method == 'POST':
-        print(request.POST)
         form = SampleSelectorForm(request.POST)
         if form.is_valid():
-            pk = form.cleaned_data.get('id')
-            instance = ConcreteSample.objects.get(pk=pk)
-            report = instance.report
+            report = Report.objects.get(pk=form.cleaned_data.get('report_id'))
+            if report.report_type.standard_type == 0:
+                sample = ConcreteSample.objects.get(pk=form.cleaned_data.get('sample_id'))
+            elif report.report_type.standard_type == 1:
+                sample = SieveSample.objects.get(pk=form.cleaned_data.get('sample_id'))
 
-            instance.status = 2
+            sample.status = 2
             report.mark_complete()
 
-            instance.save()
+            sample.save()
             report.save()
             return redirect('report_approval')
     

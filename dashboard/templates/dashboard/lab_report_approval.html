@@ -29,7 +29,8 @@
                     <td>
                         <form method="POST">
                             {% csrf_token %}
-                            <input type="hidden" name="id" value="{{ sample.id }}">
+                            <input type="hidden" name="report_id" value="{{ sample.report.id }}">
+                            <input type="hidden" name="sample_id" value="{{ sample.id }}">
                             <button class='btn btn-sm btn-success' type='submit'>Approve</button>
                         </form>
                     </td>
@@ -41,11 +42,28 @@
             <tr>
                 <th>Project</th>
                 <th>ID</th>
+                <th>Result</th>
+                <th>Update</th>
+                <th>Approve</th>
             </tr>
             {% for sample in sieve_samples %}
                 <tr>
                     <td>{{ sample.report.project_name }}</td>
                     <td>{{ sample.id }}</td>
+                    {% if sample.result == 1 %}
+                        <td style="background-color:green;">Pass</td>
+                    {% else %}
+                        <td style="background-color: red;">Fail</td>
+                    {% endif %}
+                    <td><a class="btn btn-sm btn-info" href="{% url 'update_report_full' sample.report.id %}">Update</a></td>
+                    <td>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="report_id" value="{{ sample.report.id }}">
+                            <input type="hidden" name="sample_id" value="{{ sample.id }}">
+                            <button class='btn btn-sm btn-success' type='submit'>Approve</button>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </table>

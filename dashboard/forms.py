@@ -116,8 +116,8 @@ class UpdateSampleForm(ModelForm):
                   'confirm']
 
 class SampleSelectorForm(forms.Form):
-    id = forms.IntegerField(widget=forms.HiddenInput())
-
+    report_id = forms.IntegerField(widget=forms.HiddenInput())
+    sample_id = forms.IntegerField(widget=forms.HiddenInput())
 
 ############################ MANAGE FORMS #################################################
 
