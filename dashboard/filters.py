@@ -23,7 +23,7 @@ def is_client(request):
         return Project.objects.filter(company=request.user.profile.id)
     # Returns all for staff
     return Project.objects.all()
-    
+
 
 class ReportFilter(django_filters.FilterSet):
     client = django_filters.ModelChoiceFilter(field_name='project_name__company', 
@@ -36,3 +36,7 @@ class ReportFilter(django_filters.FilterSet):
     class Meta:
         model = Report
         fields = ['client', 'project', 'report_type', 'status', 'date_sampled']
+    
+    def __init__(self, *args, **kwargs):
+        super(ReportFilter, self).__init__(*args, **kwargs)
+        self.filters['client'].field.label_from_instance = lambda obj: obj.company

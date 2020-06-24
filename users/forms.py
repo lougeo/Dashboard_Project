@@ -5,18 +5,22 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import *
 
 
+class ModModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.company
+
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField()
-    group = forms.ModelChoiceField(queryset=Group.objects.all(), 
+    account_type = forms.ModelChoiceField(queryset=Group.objects.all(), 
                                    required=True)
 
     class Meta:
         model = User
-        fields = ['username', 
+        fields = ['account_type',
+                  'username', 
                   'email', 
                   'password1', 
-                  'password2', 
-                  'group']
+                  'password2']
 
 class UserEmailUpdateForm(ModelForm):
     class Meta:
@@ -66,6 +70,7 @@ class NewProjectForm(ModelForm):
 
     province = forms.ChoiceField(choices=PROVINCE_CHOICES)
     country = forms.ChoiceField(choices=COUNTRY_CHOICES)
+    company = ModModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
 
     class Meta:
         model = Project

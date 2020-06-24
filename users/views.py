@@ -22,7 +22,7 @@ def register(request):
             profile_form.save()
 
             # This seems like a janky solution to update the group
-            group = form.cleaned_data['group']
+            group = form.cleaned_data['account_type']
             group.user_set.add(new_user)
 
             messages.success(request, f'Account created for {username}')

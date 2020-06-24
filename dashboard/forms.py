@@ -4,13 +4,14 @@ from django.utils.safestring import mark_safe
 from django.forms import ModelForm, inlineformset_factory
 from .models import *
 from users.models import *
+from users.forms import ModModelChoiceField
 from decimal import Decimal
 
 ########################### NEW REPORT FORM #####################################
 
 class NewReportForm(ModelForm):
     test_type = forms.ChoiceField(choices=[(999, '--------'), (0, 'Compression'), (1, 'Sieve')])
-    client = forms.ModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
+    client = ModModelChoiceField(queryset=Profile.objects.filter(user__groups__name='Client'))
 
     class Meta:
         model = Report
