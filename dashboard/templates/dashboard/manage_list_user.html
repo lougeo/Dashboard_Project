@@ -7,6 +7,7 @@
             <h2 class='card-title'>Users</h2>
         </div>
         <br>
+        <h4>Clients</h4>
         <table class="table">
             <tr>
                 <th>First</th>
@@ -15,12 +16,54 @@
                 <th>Update</th>
             </tr>
             {% for item in items %}
+                {% if item.user.groups.first.name == 'Client' %}
                 <tr>
                     <td>{{ item.first_name }}</td>
                     <td>{{ item.last_name }}</td>
                     <td>{{ item.company }}</td>
                     <td><a class="btn btn-sm btn-info" href="{% url 'manage_update' item.id 'user' %}">Update</a></td>
                 </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+        <br>
+        <h4>Technicians</h4>
+        <table class="table">
+            <tr>
+                <th>First</th>
+                <th>Last</th>
+                <th>Company</th>
+                <th>Update</th>
+            </tr>
+            {% for item in items %}
+                {% if item.user.groups.first.name == 'Technician' %}
+                <tr>
+                    <td>{{ item.first_name }}</td>
+                    <td>{{ item.last_name }}</td>
+                    <td>{{ item.company }}</td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'manage_update' item.id 'user' %}">Update</a></td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+        <br>
+        <h4>Managers</h4>
+        <table class="table">
+            <tr>
+                <th>First</th>
+                <th>Last</th>
+                <th>Company</th>
+                <th>Update</th>
+            </tr>
+            {% for item in items %}
+                {% if item.user.groups.first.name == 'Manager' %}
+                <tr>
+                    <td>{{ item.first_name }}</td>
+                    <td>{{ item.last_name }}</td>
+                    <td>{{ item.company }}</td>
+                    <td><a class="btn btn-sm btn-info" href="{% url 'manage_update' item.id 'user' %}">Update</a></td>
+                </tr>
+                {% endif %}
             {% endfor %}
         </table>
     </div>
