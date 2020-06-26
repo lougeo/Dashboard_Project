@@ -28,7 +28,7 @@ def home(request):
         # Waiting approval
         card_3 = samples.filter(status=1).count()
 
-        card_titles = ['Total Samples in Lab', 'Breaks Today', 'Waiting Approval']
+        card_titles = ['Total Reports in Progess', 'Breaks Today', 'Waiting Approval']
 
     else:
         client = request.user.id
