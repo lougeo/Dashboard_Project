@@ -11,7 +11,7 @@ html5lib==1.0.1
 kiwisolver==1.2.0
 matplotlib==3.2.1
 numpy==1.18.4
-Pillow==7.1.2
+Pillow==8.1.1
 psycopg2==2.8.5
 pyparsing==2.4.7
 PyPDF2==1.26.0
